@@ -53,6 +53,7 @@ INSTALLED_APPS += (
     'analytical',
     'pipeline',
     'django_js_reverse',
+    'libnetid.django',
 )
 
 # apps
@@ -86,9 +87,15 @@ STATICFILES_FINDERS = (
 
 
 AUTHENTICATION_BACKENDS = (
-    'users.authBackend.NetidBackend',
+    'libnetid.django.backends.NetidBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+LIBNETID = {
+    'store_inscriptions': True,
+    'inscriptions_model' : 'users.Inscription',
+}
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

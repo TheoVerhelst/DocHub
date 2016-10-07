@@ -12,17 +12,17 @@ class InscriptionInline(admin.TabularInline):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('netid', 'name', 'is_staff', 'is_academic', 'is_representative', 'last_login', 'created')
-    list_filter = ('is_staff', 'is_academic', 'is_representative', 'last_login', 'created')
+    list_display = ('netid', 'name', 'is_staff', 'is_academic', 'is_representative', 'last_login', 'date_joined')
+    list_filter = ('is_staff', 'is_academic', 'is_representative', 'last_login', 'date_joined')
     search_fields = ('netid', 'first_name', 'last_name')
 
-    readonly_fields = ('netid', 'last_login', 'registration')
+    readonly_fields = ('netid', 'last_login', 'raw_matricule')
     filter_horizontal = ('moderated_courses',)
     inlines = (InscriptionInline,)
 
     fieldsets = (
         (None, {
-            'fields': ('netid', 'first_name', 'last_name', 'registration', 'last_login',)
+            'fields': ('netid', 'first_name', 'last_name', 'raw_matricule', 'last_login',)
         }),
         ('Notifications', {
             'classes': ('collapse',),
