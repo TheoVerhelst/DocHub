@@ -20,11 +20,11 @@ collected_static/
 
 # Android Studio files
 *.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-/captures
-.externalNativeBuild
+*.gradle
+*/.idea/workspace.xml
+*/.idea/libraries
+*.DS_Store
+application/android/DocHub/local.properties
+application/android/DocHub/local/build
+application/android/DocHub/local/captures
+*.externalNativeBuild
