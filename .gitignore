@@ -17,3 +17,14 @@ media/
 node_modules/
 collected_static/
 .vagrant/
+
+# Android Studio files
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
