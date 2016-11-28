@@ -27,4 +27,7 @@ collected_static/
 application/android/DocHub/local.properties
 application/android/DocHub/local/build
 application/android/DocHub/local/captures
+application/android/DocHub/app/build/intermediates
+application/android/DocHub/app/build/generated
+application/android/DocHub/app/build/tmp
 *.externalNativeBuild
