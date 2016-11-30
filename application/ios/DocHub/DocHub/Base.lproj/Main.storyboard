@@ -6,7 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -22,21 +21,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zqE-yV-lKc">
-                                <rect key="frame" x="16" y="20" width="343" height="647"/>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S06-7t-Ay7">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
                                 <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </webView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="zqE-yV-lKc" secondAttribute="bottom" id="0VG-wO-UYq"/>
-                            <constraint firstItem="zqE-yV-lKc" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="HEm-n4-3mn"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="zqE-yV-lKc" secondAttribute="trailing" id="vWt-Hr-LLg"/>
-                            <constraint firstItem="zqE-yV-lKc" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="zo4-SU-Mqm"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="S06-7t-Ay7" secondAttribute="bottom" id="7f9-aB-vB7"/>
+                            <constraint firstAttribute="trailing" secondItem="S06-7t-Ay7" secondAttribute="trailing" id="Q7t-N4-y7a"/>
+                            <constraint firstItem="S06-7t-Ay7" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Uhg-0r-HJc"/>
+                            <constraint firstItem="S06-7t-Ay7" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="q8O-wq-SXr"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="WebView" destination="zqE-yV-lKc" id="EnI-UY-lod"/>
+                        <outlet property="WebView" destination="S06-7t-Ay7" id="T5F-6q-sqL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

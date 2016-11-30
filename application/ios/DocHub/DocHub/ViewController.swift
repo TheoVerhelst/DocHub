@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController,UIWebViewDelegate {
 
     
+    
     @IBOutlet weak var WebView: UIWebView!
     
     override func viewDidLoad() {
