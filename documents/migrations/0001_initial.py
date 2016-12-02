@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('pdf', models.FileField(upload_to='pdf_document')),
                 ('state', models.CharField(default='PREPARING', max_length=20, db_index=True)),
                 ('md5', models.CharField(default='', max_length=32, db_index=True)),
-                ('course', models.ForeignKey(to='catalog.Course', null=True)),
+                ('group', models.ForeignKey(to='catalog.Group', null=True)),
                 ('tags', models.ManyToManyField(to='tags.Tag')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],

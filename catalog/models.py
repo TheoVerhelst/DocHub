@@ -27,7 +27,7 @@ class Category(MPTTModel):
 
 
 @python_2_unicode_compatible
-class Course(models.Model):
+class Group(models.Model):
     name = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(unique=True, db_index=True)
     categories = models.ManyToManyField(Category)
@@ -40,7 +40,7 @@ class Course(models.Model):
         return "http://gehol.ulb.ac.be/gehol/Vue/HoraireCours.php?cours=%s" % (slug,)
 
     def get_absolute_url(self):
-        return reverse('course_show', args=(self.slug, ))
+        return reverse('group_show', args=(self.slug, ))
 
     def __str__(self):
         return self.slug.upper()

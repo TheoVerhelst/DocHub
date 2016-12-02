@@ -43,8 +43,8 @@
                 {% endwith %}
               </li>
               <li class="has-dropdown">
-                <a href="{% url 'show_courses' %}">Mes cours</a>
-                <ul class="dropdown" id="course-tree-menu">
+                <a href="{% url 'show_groups' %}">Mes cours</a>
+                <ul class="dropdown" id="group-tree-menu">
                   <li><a href="#">
                     <i class="fi-loop spinning"></i> <span class="fading">Chargement</span>
                   </a></li>
@@ -90,21 +90,21 @@
                 <i class="fi-list-thumbnails"></i> Flux d'actualités
               </a>
             </li>
-            {% if request.user.following_courses|length == 0 %}
+            {% if request.user.following_groups|length == 0 %}
               <li>
-                <a href="{% url 'show_courses' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
+                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
                 </a>
               </li>
             {% else %}
               <li>
-                <a href="{% url 'show_courses' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Mes cours</a>
+                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Mes cours</a>
               </li>
             {% endif %}
-            <ul class="course-bulletlist">
-              {% for course in request.user.following_courses %}
+            <ul class="group-bulletlist">
+              {% for group in request.user.following_groups %}
                 <li class="nav-link">
-                  <a href="{% url 'course_show' course.slug %}">
-                    <i class="fi-folder"></i> {{ course.name }}
+                  <a href="{% url 'group_show' group.slug %}">
+                    <i class="fi-folder"></i> {{ group.name }}
                   </a>
                   </li>
               {% endfor %}

@@ -17,7 +17,7 @@ router = SimpleRouterWithNesting()
 
 router.register(r'users', users.rest.UserViewSet)
 router.register(r'pages', documents.rest.PageViewSet)
-router.register(r'courses', catalog.rest.CourseViewSet)
+router.register(r'groups', catalog.rest.GroupViewSet)
 router.register(r'categories', catalog.rest.CategoryViewSet)
 router.register(r'threads', telepathy.rest.ThreadViewSet)
 router.register(r'messages', telepathy.rest.MessageViewSet)

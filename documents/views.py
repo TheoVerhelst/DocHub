@@ -14,7 +14,7 @@ from django.db.models import F
 from actstream import action
 
 from documents.models import Document
-from catalog.models import Course
+from catalog.models import Group
 from documents.forms import UploadFileForm, FileForm, MultipleUploadFileForm, ReUploadForm
 from telepathy.forms import NewThreadForm
 from tags.models import Tag
@@ -23,7 +23,7 @@ from documents import logic
 
 @login_required
 def upload_file(request, slug):
-    course = get_object_or_404(Course, slug=slug)
+    group = get_object_or_404(Group, slug=slug)
 
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -37,11 +37,11 @@ def upload_file(request, slug):
             if form.cleaned_data['name']:
                 name = form.cleaned_data['name']
 
-            document = logic.add_file_to_course(
+            document = logic.add_file_to_group(
                 file=file,
                 name=name,
                 extension=extension,
-                course=course,
+                group=group,
                 tags=form.cleaned_data['tags'],
                 user=request.user
             )
@@ -51,7 +51,7 @@ def upload_file(request, slug):
 
             document.add_to_queue()
 
-            return HttpResponseRedirect(reverse('course_show', args=[course.slug]))
+            return HttpResponseRedirect(reverse('group_show', args=[group.slug]))
 
     else:
         form = UploadFileForm()
@@ -61,13 +61,13 @@ def upload_file(request, slug):
     return render(request, 'documents/document_upload.html', {
         'form': form,
         'multiform': multiform,
-        'course': course,
+        'group': group,
     })
 
 
 @login_required
 def upload_multiple_files(request, slug):
-    course = get_object_or_404(Course, slug=slug)
+    group = get_object_or_404(Group, slug=slug)
 
     if request.method == 'POST':
         form = MultipleUploadFileForm(request.POST, request.FILES)
@@ -77,18 +77,18 @@ def upload_multiple_files(request, slug):
                 name, extension = os.path.splitext(attachment.name)
                 name = logic.clean_filename(name)
 
-                document = logic.add_file_to_course(
+                document = logic.add_file_to_group(
                     file=attachment,
                     name=name,
                     extension=extension,
-                    course=course,
+                    group=group,
                     tags=[],
                     user=request.user
                 )
                 document.add_to_queue()
 
-            return HttpResponseRedirect(reverse('course_show', args=[course.slug]))
-    return HttpResponseRedirect(reverse('document_put', args=(course.slug,)))
+            return HttpResponseRedirect(reverse('group_show', args=[group.slug]))
+    return HttpResponseRedirect(reverse('document_put', args=(group.slug,)))
 
 
 @login_required
@@ -111,7 +111,7 @@ def document_edit(request, pk):
 
             doc.save()
 
-            action.send(request.user, verb="a édité", action_object=doc, target=doc.course)
+            action.send(request.user, verb="a édité", action_object=doc, target=doc.group)
 
             return HttpResponseRedirect(reverse('document_show', args=[doc.id]))
 
@@ -159,10 +159,10 @@ def document_reupload(request, pk):
                 request.user,
                 verb="a uploadé une nouvelle version de",
                 action_object=document,
-                target=document.course
+                target=document.group
             )
 
-            return HttpResponseRedirect(reverse('course_show', args=(document.course.slug,)))
+            return HttpResponseRedirect(reverse('group_show', args=(document.group.slug,)))
 
     else:
         form = ReUploadForm()
@@ -205,7 +205,7 @@ def document_show(request, pk):
     document = get_object_or_404(Document, pk=pk)
 
     if document.state != "DONE":
-        return HttpResponseRedirect(reverse('course_show', args=(document.course.slug,)))
+        return HttpResponseRedirect(reverse('group_show', args=(document.group.slug,)))
 
     context = {
         "document": document,

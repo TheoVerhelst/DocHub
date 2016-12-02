@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import os
 
 from django.core.management import call_command
-from catalog.models import Course, Category
+from catalog.models import Group, Category
 from django.conf import settings
 
 import pytest
@@ -23,7 +23,7 @@ def test_load_tree():
     ulb = Category.objects.get(level=0)
     assert ulb.name == "ULB"
 
-    opti = Course.objects.get(slug="opti-f-1001")
+    opti = Group.objects.get(slug="opti-f-1001")
     assert opti.categories.count() == 1
     options = opti.categories.last()
 
@@ -42,36 +42,36 @@ def test_load_multiple_tree():
 
     master = phys.children.first()
     assert master.name == "Master"
-    assert master.course_set.count() == 1
-    assert master.course_set.last().slug == "phys-h-200"
+    assert master.group_set.count() == 1
+    assert master.group_set.last().slug == "phys-h-200"
 
 
 def test_empty_tree():
     category = Category.objects.create(name="Caca", slug="prout")
-    course = Course.objects.create(name="Testing", slug="test-h-100")
+    group = Group.objects.create(name="Testing", slug="test-h-100")
 
-    course.categories.add(category)
+    group.categories.add(category)
 
     call_command('loadtree', tree_file=SIMPLE_TREE)
 
     assert Category.objects.filter(slug="prout").count() == 0
 
-    course = Course.objects.get(slug="test-h-100")
-    assert course.categories.count() == 0
+    group = Group.objects.get(slug="test-h-100")
+    assert group.categories.count() == 0
 
 
 def test_fill_twice():
     call_command('loadtree', tree_file=SIMPLE_TREE)
 
-    course = Course.objects.last()
-    course.name = "Autre chose"
-    course.save()
+    group = Group.objects.last()
+    group.name = "Autre chose"
+    group.save()
 
     call_command('loadtree', tree_file=SIMPLE_TREE)
 
-    new_course = Course.objects.get(slug=course.slug)
-    assert new_course.id == course.id
-    assert course.name == new_course.name
+    new_group = Group.objects.get(slug=group.slug)
+    assert new_group.id == group.id
+    assert group.name == new_group.name
 
 
 @pytest.mark.slow
@@ -79,5 +79,5 @@ def test_fill_twice():
 def test_load_tree_hit_ulb():
     call_command('loadtree', hitulb=True, tree_file=REAL_TREE)
 
-    info = Course.objects.get(slug="info-f-101")
+    info = Group.objects.get(slug="info-f-101")
     assert info.name == "Programmation"

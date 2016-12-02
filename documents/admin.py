@@ -35,7 +35,7 @@ class DocumentAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 'name',
-                ('course', 'user'),
+                ('group', 'user'),
                 ('pages', 'state', 'hidden'),
                 'tags',
                 'description',

@@ -5,22 +5,22 @@
 {% load activity_tags %}
 {% load has_perm_on %}
 
-{% block title %}{{ course.slug|upper }}{% endblock %}
+{% block title %}{{ group.slug|upper }}{% endblock %}
 
 {% block center-col %}
 <div class="row">
   <div class="large-10 columns">
     <h1 >
-      {{ course.slug|upper }}
-      {% if request.user|is_following:course %}
+      {{ group.slug|upper }}
+      {% if request.user|is_following:group %}
         <i class="fi-check green"></i>
       {% endif %}
     </h1>
-    <h2>{{ course.name }}</h2>
+    <h2>{{ group.name }}</h2>
   </div>
   <div class="large-2 columns">
     <br/>
-    <a href="{{ course.gehol_url }}" class="button expand radius" target="_blank">Horaire sur GeHol</a>
+    <a href="{{ group.gehol_url }}" class="button expand radius" target="_blank">Horaire sur GeHol</a>
   </div>
 </div>
 <div class="row">
@@ -31,9 +31,9 @@
         <li class="tab-title"><a href="#threads">Discussions ({{threads.count}})</a></li>
       </ul>
       <div class="tabs-content">
-        <div class="content active" id="documents" data-id="{{ course.slug }}">
+        <div class="content active" id="documents" data-id="{{ group.slug }}">
           {% for document in documents %}
-            <div class="row course-row document"
+            <div class="row group-row document"
               node-keywords="{% for kw in document.tags.all %}{{kw}} {% endfor %}"
             >
               {% if document.state == 'DONE' %}
@@ -43,7 +43,7 @@
               {% else %}
                 <i class="fi-loop round-icon big"></i>
               {% endif %}
-              <div class="course-row-content">
+              <div class="group-row-content">
                 <h5>
                   {% if document.state == "DONE" %}
                     <a href="{% url 'document_show' document.id %}"> {{ document.name }} </a>
@@ -67,7 +67,7 @@
                 {% if document.description %}
                   <p>{{ document.description|truncatechars:200 }}</p>
                 {% endif %}
-                <div class="course-content-last-line">
+                <div class="group-content-last-line">
                   <i class="fi-page-filled"></i>  {{ document.pages }} page{{ document.pages|pluralize }}
                   <i class="fi-clock"></i> Uploadé le {{ document.date|date:"d F Y" }}
                   {% if document.tags.all %}<i class="fi-pricetag-multiple"></i> {% endif %}
@@ -89,16 +89,16 @@
         </div>
         <div class="content" id="threads">
           {% for thread in threads %}
-            <div class="row course-row thread">
+            <div class="row group-row thread">
               <a href="{% url 'thread_show' thread.id %}">
                 <i class="fi-comment round-icon big"></i>
               </a>
-              <div class="course-row-content">
+              <div class="group-row-content">
                 <h5>
                   <a href="{% url 'thread_show' thread.id %}">{{ thread.name }} </a>
                   <small>par {{ thread.user.name }}</small>
                 </h5>
-                <div class="course-content-last-line">
+                <div class="group-content-last-line">
                   <i class="fi-align-justify"></i>
                   {{ thread.message__count }} message{{ thread.message__count|pluralize }}
                   <i class="fi-clock"></i> Posté le {{ thread.created|date:"d F Y" }}
@@ -121,14 +121,14 @@
 <div class="row">
   <div class="large-12 columns">
     <br>
-    <a class="button expand radius" href="{% url 'document_put' course.slug %}">Uploader un fichier</a>
-    <a class="button expand radius" href="{% url 'thread_put' course.slug %}">Poser une question</a>
-    {% if request.user|is_following:course %}
-      <a class="button expand alert radius" href="{% url 'leave_course' course.slug %}">
+    <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
+    <a class="button expand radius" href="{% url 'thread_put' group.slug %}">Poser une question</a>
+    {% if request.user|is_following:group %}
+      <a class="button expand alert radius" href="{% url 'leave_group' group.slug %}">
         <i class="fi-x"></i> Se désabonner
       </a>
     {% else %}
-      <a class="button expand success radius" href="{% url 'join_course' course.slug %}">
+      <a class="button expand success radius" href="{% url 'join_group' group.slug %}">
         <i class="fi-check"></i> S’abonner
       </a>
     {% endif %}
@@ -141,6 +141,6 @@
 
 {% block script %}
 <script type="text/javascript">
-    loadCourseViewer('documents');
+    loadGroupViewer('documents');
 </script>
 {% endblock %}

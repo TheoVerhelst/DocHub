@@ -57,7 +57,7 @@ const Tag = React.createClass({
     }
 });
 
-const CourseDocument = React.createClass({
+const GroupDocument = React.createClass({
     ready: function(){return (this.props.state == 'DONE');},
     editable: function(){return this.props.has_perm;},
     date: function(){return moment(this.props.date).format("D MMMM YYYY");},
@@ -124,16 +124,16 @@ const CourseDocument = React.createClass({
         });
     },
     render: function(){
-        return <div className="row course-row document">
+        return <div className="row group-row document">
             {this.icon()}
-            <div className="course-row-content">
+            <div className="group-row-content">
                 <h5>
                     {this.title()}
                     <small> par {this.props.user.name}</small><br/>
                     {this.download_icon()} {this.edit_icon()} {this.reupload_icon()}
                 </h5>
                 {this.description()}
-                <div className="course-content-last-line">
+                <div className="group-content-last-line">
                     <i className="fi-page-filled"></i> {this.pages()}&nbsp;
                     <i className="fi-clock"></i> Uploadé le {this.date()}&nbsp;
                     <i className="fi-pricetag-multiple"></i> {this.tags()}
@@ -143,7 +143,7 @@ const CourseDocument = React.createClass({
     }
 });
 
-const CourseDocumentList = React.createClass({
+const GroupDocumentList = React.createClass({
     getInitialState: function(){
         return {
             tag_filter: [],
@@ -209,7 +209,7 @@ const CourseDocumentList = React.createClass({
     },
     render: function(){
         var docs = this.documents_filtered().map(function(doc){
-            return <CourseDocument key={"doc"+doc.id} {...doc} />;
+            return <GroupDocument key={"doc"+doc.id} {...doc} />;
         });
 
         return <div>
@@ -229,14 +229,14 @@ const CourseDocumentList = React.createClass({
     }
 });
 
-const loadCourseViewer = function(dest){
+const loadGroupViewer = function(dest){
     $(document).ready(function(){
         var doc_id = $('#'+dest).attr('data-id');
-        $.get(Urls['course-detail'](doc_id), function(data){
-            ReactDOM.render(<CourseDocumentList {...data} />,
+        $.get(Urls['group-detail'](doc_id), function(data){
+            ReactDOM.render(<GroupDocumentList {...data} />,
                             document.getElementById(dest));
         });
     });
 };
 
-window.loadCourseViewer = loadCourseViewer;
+window.loadGroupViewer = loadGroupViewer;

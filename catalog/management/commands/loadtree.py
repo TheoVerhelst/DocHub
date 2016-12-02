@@ -8,12 +8,12 @@ from optparse import make_option
 import yaml
 
 from django.conf import settings
-from catalog.models import Category, Course
-from libulb.catalog.course import Course as ULBCourse
+from catalog.models import Category, Group
+from libulb.catalog.group import Group as ULBGroup
 
 
 class Command(BaseCommand):
-    help = 'Loads a new courses tree into the database'
+    help = 'Loads a new groups tree into the database'
 
     option_list = BaseCommand.option_list + (
         make_option(
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             action='store_true',
             dest='hitulb',
             default=False,
-            help='Hit ULB servers to get courses names from slugs'
+            help='Hit ULB servers to get groups names from slugs'
         ),
         make_option(
             '--tree',
@@ -66,15 +66,15 @@ class Command(BaseCommand):
 
         if isinstance(tree, str):
             try:
-                course = Course.objects.get(slug=tree)
-            except Course.DoesNotExist:
+                group = Group.objects.get(slug=tree)
+            except Group.DoesNotExist:
                 if self.LOCAL_CACHE:
-                    name = self.LOCAL_CACHE.get(tree, "Unknown course in cache")
+                    name = self.LOCAL_CACHE.get(tree, "Unknown group in cache")
                 else:
-                    ulb_course = ULBCourse.get_from_slug(tree, self.YEAR)
-                    name = ulb_course.name
-                course = Course.objects.create(name=name, slug=tree)
-            course.categories.add(father)
+                    ulb_group = ULBGroup.get_from_slug(tree, self.YEAR)
+                    name = ulb_group.name
+                group = Group.objects.create(name=name, slug=tree)
+            group.categories.add(father)
 
         if isinstance(tree, list):
             for subtree in tree:

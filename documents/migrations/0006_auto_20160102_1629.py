@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='document',
-            name='course',
-            field=models.ForeignKey(verbose_name='Cours', to='catalog.Course', null=True),
+            name='group',
+            field=models.ForeignKey(verbose_name='Cours', to='catalog.Group', null=True),
         ),
         migrations.AlterField(
             model_name='document',

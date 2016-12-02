@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('netid', 'first_name', 'last_name')
 
     readonly_fields = ('netid', 'last_login', 'registration')
-    filter_horizontal = ('moderated_courses',)
+    filter_horizontal = ('moderated_groups',)
     inlines = (InscriptionInline,)
 
     fieldsets = (
@@ -30,7 +30,7 @@ class UserAdmin(admin.ModelAdmin):
         }),
         ('Moderation', {
             'classes': ('collapse',),
-            'fields': ('is_staff', 'is_academic', 'is_representative', 'moderated_courses')
+            'fields': ('is_staff', 'is_academic', 'is_representative', 'moderated_groups')
         }),
         ('Other', {
             'classes': ('collapse',),

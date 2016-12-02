@@ -22,7 +22,7 @@ class Thread(models.Model):
     edited = models.DateTimeField(auto_now=True)
     placement = models.TextField(default="", blank=True)
 
-    course = models.ForeignKey('catalog.Course')
+    group = models.ForeignKey('catalog.Group')
     document = models.ForeignKey('documents.Document', null=True)
 
     def __str__(self):
@@ -42,11 +42,11 @@ class Thread(models.Model):
     def get_absolute_url(self):
         return reverse('thread_show', args=(self.id, ))
 
-    def write_perm(self, user, moderated_courses):
+    def write_perm(self, user, moderated_groups):
         if user.id == self.user_id:
             return True
 
-        if self.course_id in moderated_courses:
+        if self.group_id in moderated_groups:
             return True
 
         return False
@@ -73,11 +73,11 @@ class Message(models.Model):
     def get_absolute_url(self):
         return reverse('thread_show', args=(self.thread_id, )) + "#message-{}".format(self.id)
 
-    def write_perm(self, user, moderated_courses):
+    def write_perm(self, user, moderated_groups):
         if user.id == self.user_id:
             return True
 
-        if self.thread.course_id in moderated_courses:
+        if self.thread.group_id in moderated_groups:
             return True
 
         return False

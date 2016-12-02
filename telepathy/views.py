@@ -11,17 +11,17 @@ from actstream import action, actions
 
 from telepathy.forms import NewThreadForm, MessageForm
 from telepathy.models import Thread, Message
-from catalog.models import Course
+from catalog.models import Group
 from documents.models import Document
 
 
 @login_required
-def new_thread(request, course_slug=None, document_id=None):
+def new_thread(request, group_slug=None, document_id=None):
     if document_id is not None:
         document = get_object_or_404(Document, id=document_id)
-        course = document.course
+        group = document.group
     else:
-        course = get_object_or_404(Course, slug=course_slug)
+        group = get_object_or_404(Group, slug=group_slug)
         document = None
 
     if request.method == 'POST':
@@ -31,7 +31,7 @@ def new_thread(request, course_slug=None, document_id=None):
             name = form.cleaned_data['name']
             content = form.cleaned_data['content']
 
-            thread = Thread.objects.create(user=request.user, name=name, course=course, document=document)
+            thread = Thread.objects.create(user=request.user, name=name, group=group, document=document)
             message = Message.objects.create(user=request.user, thread=thread, text=content)
 
             placement = {}
@@ -43,7 +43,7 @@ def new_thread(request, course_slug=None, document_id=None):
                 thread.save()
 
             actions.follow(request.user, thread, actor_only=False)
-            action.send(request.user, verb="a posté", action_object=thread, target=course, markdown=message.text)
+            action.send(request.user, verb="a posté", action_object=thread, target=group, markdown=message.text)
 
             return HttpResponseRedirect(
                 reverse('thread_show', args=[thread.id]) + "#message-" + str(message.id)
@@ -53,7 +53,7 @@ def new_thread(request, course_slug=None, document_id=None):
 
     return render(request, 'telepathy/new_thread.html', {
         'form': form,
-        'course': course,
+        'group': group,
     })
 
 

@@ -3949,7 +3949,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
    * element. The symptoms were that if your mouse is not moving over something
    * contained within that mount point (for example on the background) the
    * top-level listeners for `onmousemove` won't be called. However, if you
-   * register the `mousemove` on the document object, then it will of course
+   * register the `mousemove` on the document object, then it will of group
    * catch all `mousemove`s. This along with iOS quirks, justifies restricting
    * top-level listeners to the document object only, at least for these
    * movement types of events and possibly all events.

@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Course, Category
+from .models import Group, Category
 
 
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
     list_display = ('slug', 'name')
     search_fields = ('slug', 'name')
     # filter_horizontal = ('categories',)

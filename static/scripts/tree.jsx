@@ -1,6 +1,6 @@
-const Course = React.createClass({
+const Group = React.createClass({
     url: function(){
-        return Urls.course_show(this.props.slug);
+        return Urls.group_show(this.props.slug);
     },
     render: function(){
         return <li><a href={this.url()}>
@@ -17,15 +17,15 @@ const Category = React.createClass({
         var children = this.props.children.map(function(cat){
             return <Category key={"cat"+cat.id} {...cat}/>;
         });
-        var courses = this.props.courses.map(function(course){
-            return <Course key={"course"+course.id} {...course}/>;
+        var groups = this.props.groups.map(function(group){
+            return <Group key={"group"+group.id} {...group}/>;
         });
         var contents = "";
-        if (children.length > 0 || courses.length > 0){
+        if (children.length > 0 || groups.length > 0){
             contents = <ul className="dropdown">
                 {children}
                 <li className="divider"></li>
-                {courses}
+                {groups}
             </ul>;
         }
         return <li className="has-dropdown">
@@ -36,9 +36,9 @@ const Category = React.createClass({
 });
 
 $(document).ready(function(){
-    $.get(Urls.course_tree(), function(data){
+    $.get(Urls.group_tree(), function(data){
         ReactDOM.render(<Category {...data[0]}/>,
-                        document.getElementById('course-tree-menu')
+                        document.getElementById('group-tree-menu')
         );
         $(document).foundation('topbar', 'reflow');
     });

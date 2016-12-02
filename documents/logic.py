@@ -21,13 +21,13 @@ def cast_tag(tag):
         return Tag.objects.get_or_create(name=tag.lower())[0]
 
 
-def add_file_to_course(file, name, extension, course, tags, user):
+def add_file_to_group(file, name, extension, group, tags, user):
     if not extension.startswith("."):
         raise ValueError("extension must start with a '.'")
     document = Document.objects.create(
         user=user,
         name=name,
-        course=course,
+        group=group,
         state="PREPARING",
         file_type=extension.lower()
     )

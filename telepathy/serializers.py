@@ -21,10 +21,10 @@ class ThreadSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Thread
-        fields = ('id', 'name', 'user', 'created', 'edited', 'course', 'document', 'url', 'message_set')
+        fields = ('id', 'name', 'user', 'created', 'edited', 'group', 'document', 'url', 'message_set')
 
         extra_kwargs = {
-            'course': {'lookup_field': 'slug'},
+            'group': {'lookup_field': 'slug'},
         }
 
 
@@ -33,8 +33,8 @@ class SmallThreadSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Thread
-        fields = ('id', 'name', 'user', 'created', 'edited', 'course', 'document', 'url')
+        fields = ('id', 'name', 'user', 'created', 'edited', 'group', 'document', 'url')
 
         extra_kwargs = {
-            'course': {'lookup_field': 'slug'},
+            'group': {'lookup_field': 'slug'},
         }

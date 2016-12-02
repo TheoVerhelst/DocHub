@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False)),
                 ('is_academic', models.BooleanField(default=False)),
                 ('is_representative', models.BooleanField(default=False)),
-                ('followed_courses', models.ManyToManyField(to='catalog.Course')),
+                ('followed_groups', models.ManyToManyField(to='catalog.Group')),
             ],
             options={
                 'abstract': False,
