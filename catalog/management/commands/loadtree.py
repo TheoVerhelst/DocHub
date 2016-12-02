@@ -9,7 +9,7 @@ import yaml
 
 from django.conf import settings
 from catalog.models import Category, Group
-from libulb.catalog.group import Group as ULBGroup
+from libulb.catalog.course import Course as ULBGroup
 
 
 class Command(BaseCommand):
