@@ -19,7 +19,7 @@ There is a [live instance of DocHub](http://dochub.be) hosted by [UrLab](http://
 You can run a dev instance in a Vagrant box with the following steps or read further for manual installation instructions.
 
 Download and install vagrant (and probably virtualbox with it), then
-    
+
     vagrant up
     vagrant ssh
     cd /vagrant
@@ -39,7 +39,10 @@ The files in the repo on your host machine are shared and available from within 
     sudo pacman -S graphicsmagick unoconv nodejs ruby python npm
 
 ### Installation
+Make sure you have `python3`, `pip3` and `virtualenv`.
 
+	virtualenv ve
+	source ve/bin/activate
     gem install sass
     sudo npm install -g yuglify
     make install database
