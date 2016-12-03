@@ -28,6 +28,12 @@ class Category(MPTTModel):
 
 @python_2_unicode_compatible
 class Group(models.Model):
+    GROUP_TYPES= (
+        ("C", "Course"),
+        ("P", "Public"),
+        ("R", "Private"),
+    )
+    type = models.CharField(max_length=1, choices=GROUP_TYPES)
     name = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(unique=True, db_index=True)
     categories = models.ManyToManyField(Category)
@@ -35,9 +41,21 @@ class Group(models.Model):
     class Meta:
         ordering = ['slug']
 
+    def isCourse(self):
+        return self.type == "C"
+
+    def isPublic(self):
+        return self.type == "P"
+        
+    def isPrivate(self):
+        return self.type == "R"
+
     def gehol_url(self):
-        slug = self.slug.replace('-', '').upper()
-        return "http://gehol.ulb.ac.be/gehol/Vue/HoraireCours.php?cours=%s" % (slug,)
+        if self.isCourse():
+            slug = self.slug.replace('-', '').upper()
+            return "http://gehol.ulb.ac.be/gehol/Vue/HoraireCours.php?cours=%s" % (slug,)
+        else:
+            return None
 
     def get_absolute_url(self):
         return reverse('group_show', args=(self.slug, ))
