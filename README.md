@@ -51,6 +51,7 @@ If you don't want to run npm as root (we could understand), just run `npm instal
 
 ### Run
 
+	source ve/bin/activate
     honcho start
 
 Then go to http://127.0.0.1:8000/
