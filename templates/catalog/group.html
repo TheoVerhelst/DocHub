@@ -15,7 +15,6 @@
         <i class="fi-check green"></i>
       {% endif %}
     </h1>
-    <h2></h2>
 </div>
 <div class="row">
   {% with documents=documents.all threads=threads.all %}
@@ -83,6 +82,19 @@
           {% endfor %}
         </div>
         <div class="content active" id="threads">
+            <div class="row group-row">
+                <form action="{% url 'thread_put' group.slug %}" method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                      {% include "simple_input.html" %}
+                    {% endfor %}
+                    <p class="text-right">
+                      <input type="submit" class="button success radius" value="Envoyer" />
+                    </p>
+                </form>
+            </div>
           {% for thread in threads %}
             <div class="row group-row thread">
               <a href="{% url 'thread_show' thread.id %}">
@@ -117,7 +129,6 @@
   <div class="large-12 columns">
     <br>
     <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
-    <a class="button expand radius" href="{% url 'thread_put' group.slug %}">Poster un message</a>
     <a class="button expand radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
     {% if request.user|is_following:group %}
       <a class="button expand alert radius" href="{% url 'leave_group' group.slug %}">

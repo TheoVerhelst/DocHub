@@ -19,6 +19,7 @@ import actstream
 
 from catalog.models import Category, Group
 from catalog.suggestions import suggest
+from telepathy.forms import NewThreadForm
 
 
 class CategoryDetailView(LoginRequiredMixin, DetailView):
@@ -41,6 +42,7 @@ class GroupDetailView(LoginRequiredMixin, DetailView):
             .select_related('user')\
             .prefetch_related('tags')
         context['threads'] = group.thread_set.annotate(Count('message')).order_by('-id')
+        context['form'] = NewThreadForm()
         context['followers_count'] = len(actstream.models.followers(group))
 
         return context
