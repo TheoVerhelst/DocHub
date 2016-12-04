@@ -26,6 +26,9 @@
       </ul>
       <div class="tabs-content">
         <div class="content" id="documents" data-id="{{ group.slug }}">
+            <div class="row group-row document">
+                <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
+            </div>
           {% for document in documents %}
             <div class="row group-row document"
               node-keywords="{% for kw in document.tags.all %}{{kw}} {% endfor %}"
@@ -128,7 +131,6 @@
 <div class="row">
   <div class="large-12 columns">
     <br>
-    <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
     <a class="button expand radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
     {% if request.user|is_following:group %}
       <a class="button expand alert radius" href="{% url 'leave_group' group.slug %}">
