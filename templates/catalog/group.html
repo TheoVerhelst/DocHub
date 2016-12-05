@@ -9,12 +9,14 @@
 
 {% block content %}
 <div class="row">
-  <h1 >
-    {{ group.slug|upper }}&nbsp;: {{ group.name }}
-    {% if request.user|is_following:group %}
-      <i class="fi-check green"></i>
-    {% endif %}
-  </h1>
+  <div class="large-12 medium-12 columns">
+    <h1>
+      {{ group.slug|upper }}&nbsp;: {{ group.name }}
+      {% if request.user|is_following:group %}
+        <i class="fi-check green"></i>
+      {% endif %}
+    </h1>
+  </div>
 </div>
 <div class="row">
   {% with documents=documents.all threads=threads.all %}
