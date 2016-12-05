@@ -10,4 +10,4 @@ class NewThreadForm(forms.Form):
 
 
 class MessageForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Message'}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Exprimez-vous !', 'rows': 2}))

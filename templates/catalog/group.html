@@ -85,33 +85,51 @@
           {% endfor %}
         </div>
         <div class="content active" id="threads">
-            <div class="row group-row">
-                <form action="{% url 'thread_put' group.slug %}" method="post">
+            <form action="{% url 'thread_put' group.slug %}" method="post">
+                <div class="row group-row group-row-content">
                     {% csrf_token %}
                     {{ form.non_field_errors }}
 
-                    {% for field in form %}
+                    {% for field in thread_form %}
                       {% include "simple_input.html" %}
                     {% endfor %}
-                    <p class="text-right">
-                      <input type="submit" class="button success radius" value="Envoyer" />
-                    </p>
-                </form>
-            </div>
+                </div>
+                <div class="row">
+                    <div class="large-2 medium-2 small-12 columns">
+                        <p class="text-right">
+                          <input type="submit" class="button success radius" value="Envoyer" />
+                        </p>
+                    </div>
+                    <div class="large-10 medium-10 small-12 columns">
+                        {% include "telepathy/markdown_small_help.html" %}
+                    </div>
+                </div>
+            </form>
           {% for thread in threads %}
             <div class="row group-row thread">
-              <a href="{% url 'thread_show' thread.id %}">
-                <i class="fi-comment round-icon big"></i>
-              </a>
+              <img width="50" src="{{ thread.user.get_photo }}" class="user-photo user-photo-small left" />
               <div class="group-row-content">
                 <h5>
                   <a href="{% url 'thread_show' thread.id %}">{{ thread.name }} </a>
-                  <small>par {{ thread.user.name }}</small>
+                  <small>par {{ thread.user.name }} <i class="fi-clock"></i>{{ thread.created|date:"d F Y" }}</small>
                 </h5>
-                <div class="group-content-last-line">
-                  <i class="fi-align-justify"></i>
-                  {{ thread.message__count }} message{{ thread.message__count|pluralize }}
-                  <i class="fi-clock"></i> Posté le {{ thread.created|date:"d F Y" }}
+                <div class="row user-message">
+                    {{ thread.message_set.first|markdown }}
+                </div>
+                <button class="secondary button radius expand show-messages" data-toggle="thread-{{ thread.id }}">
+                  {% if thread.message__count == 1 %}
+                    Répondre
+                  {% elif thread.message__count == 2 %}
+                    Afficher la réponse
+                  {% else %}
+                    Afficher {{ thread.message__count|add:"-1" }} réponses
+                  {% endif %}
+                </button>
+                <div class="hide" id="thread-{{ thread.id }}">
+                  {% for message in thread.message_set.all|slice:"1:" %}
+                    {% include "telepathy/message.html" %}
+                  {% endfor %}
+                  {% include "telepathy/message_form.html" %}
                 </div>
               </div>
             </div>
@@ -151,5 +169,8 @@
 {% block script %}
 <script type="text/javascript">
     loadGroupViewer('threads');
+    $('.show-messages').click(function(){
+        $('#' + $(this).attr('data-toggle')).toggle();
+    });
 </script>
 {% endblock %}

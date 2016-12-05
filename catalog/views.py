@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.views.generic.detail import DetailView
 from django.views.decorators.cache import cache_page
 from mptt.utils import get_cached_trees
@@ -19,7 +19,7 @@ import actstream
 
 from catalog.models import Category, Group
 from catalog.suggestions import suggest
-from telepathy.forms import NewThreadForm
+from telepathy.forms import NewThreadForm, MessageForm
 
 
 class CategoryDetailView(LoginRequiredMixin, DetailView):
@@ -41,8 +41,10 @@ class GroupDetailView(LoginRequiredMixin, DetailView):
             .exclude(state="ERROR", hidden=True)\
             .select_related('user')\
             .prefetch_related('tags')
-        context['threads'] = group.thread_set.annotate(Count('message')).order_by('-id')
-        context['form'] = NewThreadForm()
+        context['threads'] = group.thread_set.annotate(Count('message'))\
+                .prefetch_related('message_set')
+        context['thread_form'] = NewThreadForm()
+        context['form'] = MessageForm()
         context['followers_count'] = len(actstream.models.followers(group))
 
         return context
