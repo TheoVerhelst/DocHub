@@ -81,30 +81,39 @@
           {% empty %}
             <h3>Il n’y a encore rien dans ce groupe...</h3>
             <p>Personne n’est encore passé ici on dirait.<br>
-              Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
+              N'hésitez pas à poster un message ou à uploader un document&nbsp;!</p>
           {% endfor %}
         </div>
         <div class="content active" id="threads">
-            <form action="{% url 'thread_put' group.slug %}" method="post">
-                <div class="row group-row group-row-content">
-                    {% csrf_token %}
-                    {{ form.non_field_errors }}
+            <div class="row user-message">
+                <div class="row user-message-header">
+                    <div class="columns">
+                    <h5>Poster un message</h5>
+                    </div>
+                </div>
+                <div class="row user-message-content">
+                  <form action="{% url 'thread_put' group.slug %}" method="post">
+                      <div class="row group-row group-row-content">
+                          {% csrf_token %}
+                          {{ form.non_field_errors }}
 
-                    {% for field in thread_form %}
-                      {% include "simple_input.html" %}
-                    {% endfor %}
+                          {% for field in thread_form %}
+                            {% include "simple_input.html" %}
+                          {% endfor %}
+                      </div>
+                      <div class="row">
+                          <div class="large-2 medium-2 small-12 columns">
+                              <p class="text-right">
+                                <input type="submit" class="button success radius" value="Envoyer" />
+                              </p>
+                          </div>
+                          <div class="large-10 medium-10 small-12 columns">
+                              {% include "telepathy/markdown_small_help.html" %}
+                          </div>
+                      </div>
+                  </form>
                 </div>
-                <div class="row">
-                    <div class="large-2 medium-2 small-12 columns">
-                        <p class="text-right">
-                          <input type="submit" class="button success radius" value="Envoyer" />
-                        </p>
-                    </div>
-                    <div class="large-10 medium-10 small-12 columns">
-                        {% include "telepathy/markdown_small_help.html" %}
-                    </div>
-                </div>
-            </form>
+            </div>
           {% for thread in threads %}
             <div class="row group-row thread">
               <img width="50" src="{{ thread.user.get_photo }}" class="user-photo user-photo-small left" />
