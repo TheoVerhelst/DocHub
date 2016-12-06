@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="row">
-  <div class="large-12 medium-12 columns">
+  <div class="columns">
     <h1>
       {{ group.slug|upper }}&nbsp;: {{ group.name }}
       {% if request.user|is_following:group %}
@@ -18,166 +18,168 @@
     </h1>
   </div>
 </div>
-<div class="row">
-  {% with documents=documents.all threads=threads.all %}
-    <div class="large-12 medium-12 columns">
-      <ul class="tabs" data-tab>
-        <li class="tab-title active"><a href="#threads">Discussions</a></li>
-        <li class="tab-title"><a href="#chat">Chat</a></li>
-        <li class="tab-title"><a href="#documents">Documents ({{documents.count}})</a></li>
-        <li class="tab-title"><a href="#about">À propos</a></li>
-      </ul>
-      <div class="tabs-content">
-        <div class="content active" id="threads">
-          <div class="row user-message">
-            <div class="row user-message-header">
-              <div class="columns">
-                <h5>Poster un message</h5>
-              </div>
+{% with documents=documents.all threads=threads.all %}
+  <div class="row">
+    <ul class="tabs small-12 large-10 columns" data-tab>
+      <li class="tab-title active"><a href="#threads">Discussions</a></li>
+      <li class="tab-title"><a href="#chat">Chat</a></li>
+      <li class="tab-title"><a href="#documents">Documents ({{documents.count}})</a></li>
+      <li class="tab-title"><a href="#about">À propos</a></li>
+    </ul>
+    <div class="small-12 large-2 columns">
+      {% if request.user|is_following:group %}
+        <a class="button alert radius" href="{% url 'leave_group' group.slug %}">
+          <i class="fi-x"></i> Quitter le groupe
+        </a>
+      {% else %}
+        <a class="button success radius" href="{% url 'join_group' group.slug %}">
+          <i class="fi-check"></i> Rejoindre le groupe
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="tabs-content columns">
+      <div class="content active" id="threads">
+        <div class="row user-message">
+          <div class="row user-message-header">
+            <div class="columns">
+              <h5>Poster un message</h5>
             </div>
-            <div class="row user-message-content">
-              <form action="{% url 'thread_put' group.slug %}" method="post">
-                <div class="row group-row group-row-content">
-                  {% csrf_token %}
-                  {{ form.non_field_errors }}
+          </div>
+          <div class="row user-message-content">
+            <form action="{% url 'thread_put' group.slug %}" method="post">
+              <div class="row group-row group-row-content">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
 
-                  {% for field in thread_form %}
-                    {% include "simple_input.html" %}
-                  {% endfor %}
-                </div>
-                <div class="row">
-                    <div class="columns">
-                        <input type="submit" class="button success radius" value="Envoyer" />
-                    </div>
-                </div>
-              </form>
-            </div>
-          </div>
-          {% for thread in threads %}
-            <div class="row group-row thread">
-              <img width="50" src="{{ thread.user.get_photo }}" class="user-photo user-photo-small left" />
-              <div class="group-row-content">
-                <h5>
-                  <a href="{% url 'thread_show' thread.id %}">{{ thread.name }} </a>
-                  <small>par {{ thread.user.name }} <i class="fi-clock"></i>{{ thread.created|date:"d F Y" }}</small>
-                </h5>
-                <div class="row user-message">
-                    {{ thread.message_set.first|markdown }}
-                </div>
-                <button class="secondary button radius expand show-messages" data-toggle="thread-{{ thread.id }}">
-                  {% if thread.message__count == 1 %}
-                    Répondre
-                  {% elif thread.message__count == 2 %}
-                    Afficher la réponse
-                  {% else %}
-                    Afficher {{ thread.message__count|add:"-1" }} réponses
-                  {% endif %}
-                </button>
-                <div class="hide" id="thread-{{ thread.id }}">
-                  {% for message in thread.message_set.all|slice:"1:" %}
-                    {% include "telepathy/message.html" %}
-                  {% endfor %}
-                  {% include "telepathy/message_form.html" %}
-                </div>
+                {% for field in thread_form %}
+                  {% include "simple_input.html" %}
+                {% endfor %}
               </div>
-            </div>
-          {% empty %}
-            <h3>Il n’y a encore rien dans ce groupe...</h3>
-            <p>Personne n’est encore passé ici on dirait.<br>
-              Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
-          {% endfor %}
+              <div class="row">
+                  <div class="columns">
+                      <input type="submit" class="button success radius" value="Envoyer" />
+                  </div>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="content" id="chat">
-            <h1>CHAAAAAAT!!!!!!!!!!!!!!!!!</h1>
-        </div>
-        <div class="content" id="documents" data-id="{{ group.slug }}">
-          <div class="row group-row document">
-              <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
-          </div>
-          {% for document in documents %}
-            <div class="row group-row document"
-              node-keywords="{% for kw in document.tags.all %}{{kw}} {% endfor %}"
-            >
-              {% if document.state == 'DONE' %}
-                <a href="{% url 'document_show' document.id %}">
-                  <i class="fi-page-copy round-icon big"></i>
-                </a>
-              {% else %}
-                <i class="fi-loop round-icon big"></i>
-              {% endif %}
-              <div class="group-row-content">
-                <h5>
-                  {% if document.state == "DONE" %}
-                    <a href="{% url 'document_show' document.id %}"> {{ document.name }} </a>
-                    {% if request.user|has_perm_on:document %}
-                      <a href="{% url 'document_edit' document.id %}">
-                        <abbr title="Editer ce document">
-                          <i class="fi-pencil dark-grey"></i>
-                        </abbr>
-                      </a>
-                      <a href="{% url 'document_reupload' document.id %}">
-                        <abbr title="Uploader une nouvelle version">
-                          <i class="fi-page-add dark-grey"></i>
-                        </abbr>
-                      </a>
-                    {% endif %}
-                  {% else %}
-                    {{ document.name }}
-                  {% endif %}
-                  <small>par {{ document.user.name }}</small>
-                </h5>
-                {% if document.description %}
-                  <p>{{ document.description|truncatechars:200 }}</p>
-                {% endif %}
-                <div class="group-content-last-line">
-                  <i class="fi-page-filled"></i>  {{ document.pages }} page{{ document.pages|pluralize }}
-                  <i class="fi-clock"></i> Uploadé le {{ document.date|date:"d F Y" }}
-                  {% if document.tags.all %}<i class="fi-pricetag-multiple"></i> {% endif %}
-                  {% for kw in document.tags.all%}
-                    <a data-id="{{kw.id}}" href="#"
-                       style="background-color: {{kw.color}}; border: solid 2px {{kw.color}};"
-                       class="radius label tag-item">
-                      {{kw}}
-                    </a>
-                  {% endfor %}
-                </div>
+        {% for thread in threads %}
+          <div class="row group-row thread">
+            <img width="50" src="{{ thread.user.get_photo }}" class="user-photo user-photo-small left" />
+            <div class="group-row-content">
+              <h5>
+                <a href="{% url 'thread_show' thread.id %}">{{ thread.name }} </a>
+                <small>par {{ thread.user.name }} <i class="fi-clock"></i>{{ thread.created|date:"d F Y" }}</small>
+              </h5>
+              <div class="row user-message">
+                  {{ thread.message_set.first|markdown }}
               </div>
-            </div>
-          {% empty %}
-            <h3>Il n’y a encore rien dans ce groupe...</h3>
-            <p>Personne n’est encore passé ici on dirait.<br>
-              N'hésitez pas à poster un message ou à uploader un document&nbsp;!</p>
-          {% endfor %}
-          </div>
-          <div class="content" id="about">
-            <div class="row">
-              <div class="large-9 medium-9 small-12 columns">
-                <h2>À propos</h2>
-                {% if followers_count > 1 %}
-                  <small>{{followers_count}} personnes sont membre de ce cours.</small>
-                {% endif %}
-              </div>
-              <div class="large-3 medium-3 small-12 columns">
-                {% if group.isCourse %}
-                <a class="button radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
-                {% endif %}
-                {% if request.user|is_following:group %}
-                  <a class="button alert radius" href="{% url 'leave_group' group.slug %}">
-                    <i class="fi-x"></i> Quitter le groupe
-                  </a>
+              <button class="secondary button radius expand show-messages" data-toggle="thread-{{ thread.id }}">
+                {% if thread.message__count == 1 %}
+                  Répondre
+                {% elif thread.message__count == 2 %}
+                  Afficher la réponse
                 {% else %}
-                  <a class="button success radius" href="{% url 'join_group' group.slug %}">
-                    <i class="fi-check"></i> Rejoindre le groupe
-                  </a>
+                  Afficher {{ thread.message__count|add:"-1" }} réponses
                 {% endif %}
+              </button>
+              <div class="hide" id="thread-{{ thread.id }}">
+                {% for message in thread.message_set.all|slice:"1:" %}
+                  {% include "telepathy/message.html" %}
+                {% endfor %}
+                {% include "telepathy/message_form.html" %}
               </div>
+            </div>
+          </div>
+        {% empty %}
+          <h3>Il n’y a encore rien dans ce groupe...</h3>
+          <p>Personne n’est encore passé ici on dirait.<br>
+            Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
+        {% endfor %}
+      </div>
+      <div class="content" id="chat">
+          <h1>CHAAAAAAT!!!!!!!!!!!!!!!!!</h1>
+      </div>
+      <div class="content" id="documents" data-id="{{ group.slug }}">
+        <div class="row group-row document">
+            <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
+        </div>
+        {% for document in documents %}
+          <div class="row group-row document"
+            node-keywords="{% for kw in document.tags.all %}{{kw}} {% endfor %}"
+          >
+            {% if document.state == 'DONE' %}
+              <a href="{% url 'document_show' document.id %}">
+                <i class="fi-page-copy round-icon big"></i>
+              </a>
+            {% else %}
+              <i class="fi-loop round-icon big"></i>
+            {% endif %}
+            <div class="group-row-content">
+              <h5>
+                {% if document.state == "DONE" %}
+                  <a href="{% url 'document_show' document.id %}"> {{ document.name }} </a>
+                  {% if request.user|has_perm_on:document %}
+                    <a href="{% url 'document_edit' document.id %}">
+                      <abbr title="Editer ce document">
+                        <i class="fi-pencil dark-grey"></i>
+                      </abbr>
+                    </a>
+                    <a href="{% url 'document_reupload' document.id %}">
+                      <abbr title="Uploader une nouvelle version">
+                        <i class="fi-page-add dark-grey"></i>
+                      </abbr>
+                    </a>
+                  {% endif %}
+                {% else %}
+                  {{ document.name }}
+                {% endif %}
+                <small>par {{ document.user.name }}</small>
+              </h5>
+              {% if document.description %}
+                <p>{{ document.description|truncatechars:200 }}</p>
+              {% endif %}
+              <div class="group-content-last-line">
+                <i class="fi-page-filled"></i>  {{ document.pages }} page{{ document.pages|pluralize }}
+                <i class="fi-clock"></i> Uploadé le {{ document.date|date:"d F Y" }}
+                {% if document.tags.all %}<i class="fi-pricetag-multiple"></i> {% endif %}
+                {% for kw in document.tags.all%}
+                  <a data-id="{{kw.id}}" href="#"
+                     style="background-color: {{kw.color}}; border: solid 2px {{kw.color}};"
+                     class="radius label tag-item">
+                    {{kw}}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <h3>Il n’y a encore rien dans ce groupe...</h3>
+          <p>Personne n’est encore passé ici on dirait.<br>
+            N'hésitez pas à poster un message ou à uploader un document&nbsp;!</p>
+        {% endfor %}
+        </div>
+        <div class="content" id="about">
+          <div class="row">
+            <div class="large-9 medium-9 small-12 columns">
+              <h2>À propos</h2>
+              {% if followers_count > 1 %}
+                <p>{{followers_count}} personnes sont membre de ce groupe.</p>
+              {% endif %}
+            </div>
+            <div class="large-3 medium-3 small-12 columns">
+              {% if group.isCourse %}
+              <a class="button radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
     </div>
-  {% endwith %}
-</div>
+  </div>
+{% endwith %}
 {% endblock %}
 
 {% block script %}
