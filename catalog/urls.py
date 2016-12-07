@@ -11,7 +11,8 @@ urlpatterns = [
 
     url(r"^join/(?P<slug>[^/]*)$", catalog.views.join_group, name="join_group"),
     url(r"^leave/(?P<slug>[^/]*)$", catalog.views.leave_group, name="leave_group"),
-    url(r"^subscribed_groups/$", catalog.views.show_groups, name="show_groups"),
+    url(r"^my_groups/$", catalog.views.show_my_groups, name="show_my_groups"),
+    url(r"^all_groups/$", catalog.views.show_all_groups, name="show_all_groups"),
 
     url(r"^group_tree.json$", catalog.views.group_tree, name="group_tree"),
 ]

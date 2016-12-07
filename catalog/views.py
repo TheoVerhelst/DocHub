@@ -69,10 +69,16 @@ def leave_group(request, slug):
 
 
 @login_required
-def show_groups(request):
+def show_my_groups(request):
     return render(request, "catalog/my_groups.html", {
-        "faculties": Category.objects.get(level=0).children.all(),
         "suggestions": suggest(request.user)
+    })
+    
+@login_required
+def show_all_groups(request):
+    return render(request, "catalog/all_groups.html", {
+        "groups" : Group.objects.all(),
+        "categories" : Category.objects.all()
     })
 
 

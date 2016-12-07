@@ -44,7 +44,7 @@
                 {% endwith %}
               </li>
               <li class="has-dropdown">
-                <a href="{% url 'show_groups' %}">Vos groupes</a>
+                <a href="{% url 'show_my_groups' %}">Vos groupes</a>
                 <ul class="dropdown" id="group-tree-menu">
                   <li><a href="#">
                     <i class="fi-loop spinning"></i> <span class="fading">Chargement</span>
@@ -93,23 +93,26 @@
             </li>
             {% if request.user.following_groups|length == 0 %}
               <li>
-                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
+                <a href="{% url 'show_all_groups' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
                 </a>
               </li>
             {% else %}
               <li>
-                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Vos groupes</a>
+                <a href="{% url 'show_my_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-page-filled"></i> Vos groupes</a>
               </li>
-            {% endif %}
+            {% endif %}            
             <ul class="group-bulletlist">
               {% for group in request.user.following_groups %}
                 <li class="nav-link">
                   <a href="{% url 'group_show' group.slug %}">
-                    <i class="fi-folder"></i> {{ group.name }}
+                    <i class="fi-page"></i> {{ group.name }}
                   </a>
                   </li>
               {% endfor %}
             </ul>
+            <li>
+                <a href="{% url 'show_all_groups' %}" class="sidebar-button"><i class="fi-page-multiple"></i> Liste des groupes</a>
+            </li>
           </ul>
 
         </div>
