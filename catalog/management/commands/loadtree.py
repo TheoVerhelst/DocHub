@@ -29,7 +29,7 @@ class Command(BaseCommand):
             help='Path to the .yaml tree file'
         ),
     )
-
+    
     LOCAL_CACHE = {}
     YEAR = "201617"
 
@@ -45,12 +45,33 @@ class Command(BaseCommand):
         Category.objects.all().delete()
 
         root = Category.objects.create(
-            name="ULB",
+            name="Groupes",
             slug="root",
             parent=None,
         )
+        
+        
+        catCoursULB = Category.objects.create(
+            name="Cours ULB",
+            slug="",
+            parent=root
+        )
+        
+        catGroupesPublics = Category.objects.create(
+            name="Groupes Publics",
+            slug="",
+            parent=root
+        )
+        
+        for catName in ("Cercles", "Facultés", "Etudiants"):
+            cat = Category.objects.create(
+                name=catName,
+                slug="",
+                parent=catGroupesPublics
+            )
+        
 
-        self.create_tree(root, tree)
+        self.create_tree(catCoursULB, tree)
 
         self.stdout.write('Done \n')
 
@@ -73,7 +94,7 @@ class Command(BaseCommand):
                 else:
                     ulb_group = ULBGroup.get_from_slug(tree, self.YEAR)
                     name = ulb_group.name
-                group = Group.objects.create(name=name, slug=tree)
+                group = Group.objects.create(name=name, slug=tree, type="C")
             group.categories.add(father)
 
         if isinstance(tree, list):

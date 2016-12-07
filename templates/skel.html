@@ -44,7 +44,7 @@
                 {% endwith %}
               </li>
               <li class="has-dropdown">
-                <a href="{% url 'show_groups' %}">Mes cours</a>
+                <a href="{% url 'show_groups' %}">Vos groupes</a>
                 <ul class="dropdown" id="group-tree-menu">
                   <li><a href="#">
                     <i class="fi-loop spinning"></i> <span class="fading">Chargement</span>
@@ -98,7 +98,7 @@
               </li>
             {% else %}
               <li>
-                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Mes cours</a>
+                <a href="{% url 'show_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Vos groupes</a>
               </li>
             {% endif %}
             <ul class="group-bulletlist">
