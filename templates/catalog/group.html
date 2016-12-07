@@ -9,13 +9,24 @@
 
 {% block content %}
 <div class="row">
-  <div class="columns">
+  <div class="medium-10 small-12 columns">
     <h1>
       {{ group.slug|upper }}&nbsp;: {{ group.name }}
       {% if request.user|is_following:group %}
         <i class="fi-check green"></i>
       {% endif %}
     </h1>
+  </div>
+  <div class="small-12 large-2 columns">
+    {% if request.user|is_following:group %}
+      <a class="button alert radius" href="{% url 'leave_group' group.slug %}">
+        <i class="fi-x"></i> Quitter le groupe
+      </a>
+    {% else %}
+      <a class="button success radius" href="{% url 'join_group' group.slug %}">
+        <i class="fi-check"></i> Rejoindre le groupe
+      </a>
+    {% endif %}
   </div>
 </div>
 {% with documents=documents.all threads=threads.all %}
@@ -26,17 +37,6 @@
       <li class="tab-title"><a href="#documents">Documents ({{documents.count}})</a></li>
       <li class="tab-title"><a href="#about">À propos</a></li>
     </ul>
-    <div class="small-12 large-2 columns">
-      {% if request.user|is_following:group %}
-        <a class="button alert radius" href="{% url 'leave_group' group.slug %}">
-          <i class="fi-x"></i> Quitter le groupe
-        </a>
-      {% else %}
-        <a class="button success radius" href="{% url 'join_group' group.slug %}">
-          <i class="fi-check"></i> Rejoindre le groupe
-        </a>
-      {% endif %}
-    </div>
   </div>
   <div class="row">
     <div class="tabs-content columns">
