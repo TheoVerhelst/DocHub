@@ -45,10 +45,29 @@
               </li>
               <li class="has-dropdown">
                 <a href="{% url 'show_my_groups' %}">Vos groupes</a>
-                <ul class="dropdown" id="group-tree-menu">
-                  <li><a href="#">
-                    <i class="fi-loop spinning"></i> <span class="fading">Chargement</span>
-                  </a></li>
+
+                {% regroup request.user.following_groups by type as group_list %}
+                <ul class="dropdown">
+                  {% for type in group_list %}
+                    <li class="has-dropdown">
+                      <a href="#">
+                        {% if type.grouper == 'C' %}
+                          Cours
+                        {% elif type.grouper == 'P' %}
+                          Public
+                        {% elif type.grouper == 'R' %}
+                          Privé
+                        {% else %}
+                          Autre
+                        {% endif %}
+                      </a>
+                      <ul class="dropdown">
+                        {% for group in type.list %}
+                          <li><a href="{% url 'group_show' group.slug %}">{{ group.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endfor %}
                 </ul>
               </li>
               <li>
@@ -103,32 +122,32 @@
             {% endif %}
 
             <li>
-            {% regroup request.user.following_groups by type as group_list %}
-            <ul class="group-bulletlist">
-              {% for type in group_list %}
-                <li>
-                  <a href="#" class="sidebar-button">
-                    <i class="fi-arrow-right"></i>
-                    {% if type.grouper == 'C' %}
-                      Cours
-                    {% elif type.grouper == 'P' %}
-                      Public
-                    {% elif type.grouper == 'R' %}
-                      Privé
-                    {% else %}
-                      Autre
-                    {% endif %}
-                  </a>
-                  <ul class="group-bulletlist">
-                    {% for group in type.list %}
-                      <li class="nav-link">
-                        <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                </li>
-              {% endfor %}
-            </ul>
+              {% regroup request.user.following_groups by type as group_list %}
+              <ul class="group-bulletlist">
+                {% for type in group_list %}
+                  <li>
+                    <a href="#" class="sidebar-button">
+                      <i class="fi-arrow-right"></i>
+                      {% if type.grouper == 'C' %}
+                        Cours
+                      {% elif type.grouper == 'P' %}
+                        Public
+                      {% elif type.grouper == 'R' %}
+                        Privé
+                      {% else %}
+                        Autre
+                      {% endif %}
+                    </a>
+                    <ul class="group-bulletlist">
+                      {% for group in type.list %}
+                        <li class="nav-link">
+                          <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% endfor %}
+              </ul>
             </li>
 
             <li>
