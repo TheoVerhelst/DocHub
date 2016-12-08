@@ -100,16 +100,37 @@
               <li>
                 <a href="{% url 'show_my_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-page-filled"></i> Vos groupes</a>
               </li>
-            {% endif %}            
+            {% endif %}
+
+            <li>
+            {% regroup request.user.following_groups by type as group_list %}
             <ul class="group-bulletlist">
-              {% for group in request.user.following_groups %}
-                <li class="nav-link">
-                  <a href="{% url 'group_show' group.slug %}">
-                    <i class="fi-page"></i> {{ group.name }}
+              {% for type in group_list %}
+                <li>
+                  <a href="#" class="sidebar-button">
+                    <i class="fi-arrow-right"></i>
+                    {% if type.grouper == 'C' %}
+                      Cours
+                    {% elif type.grouper == 'P' %}
+                      Public
+                    {% elif type.grouper == 'R' %}
+                      Privé
+                    {% else %}
+                      Autre
+                    {% endif %}
                   </a>
-                  </li>
+                  <ul class="group-bulletlist">
+                    {% for group in type.list %}
+                      <li class="nav-link">
+                        <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </li>
               {% endfor %}
             </ul>
+            </li>
+
             <li>
                 <a href="{% url 'show_all_groups' %}" class="sidebar-button"><i class="fi-page-multiple"></i> Liste des groupes</a>
             </li>
@@ -125,7 +146,7 @@
     <footer class="text-center">
       <hr>
       <br>
-      <a href="https://www.facebook.com/DocHub" id="facebook"><i class="fi-social-facebook"></i></a> - 
+      <a href="https://www.facebook.com/DocHub" id="facebook"><i class="fi-social-facebook"></i></a> -
       <a href="mailto:nikita.marchant@ulb.ac.be">Contact&nbsp;us</a> -
       Made&nbsp;with&nbsp;<i class="fi-heart"></i>&nbsp;at&nbsp;<a href="http://urlab.be"><img src="/static/images/urlab.png" style="height: 1em;">&nbsp;UrLab</a>
       - Code&nbsp;on&nbsp;<a href="http://github.com/UrLab/beta402">GitHub</a>
