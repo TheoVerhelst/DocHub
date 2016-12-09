@@ -15,17 +15,36 @@
         <i class="fi-info"></i> En vous abonnant à un groupe, vous recevrez une notification quand quelqu'un ajoute un document ou pose une question.
       </div>
     {% else %}
+
+      {% regroup groups by type as group_list %}
       <ul class="group-list">
-        {% for group in request.user.following_groups %}
+        {% for type in group_list %}
           <li>
-            <h6>
-              <a href="{% url 'group_show' group.slug %}">
-                  <span class="group-label radius success label">
-                    {{ group.slug }}
-                  </span>
-                  {{ group.name }}
-              </a>
-            </h6>
+            <h5>
+              {% if type.grouper == 'C' %}
+                Cours
+              {% elif type.grouper == 'P' %}
+                Public
+              {% elif type.grouper == 'R' %}
+                Privé
+              {% else %}
+                Autre
+              {% endif %}
+            </h5>
+            <ul class="group-list">
+              {% for group in type.list %}
+                <li>
+                  <h6>
+                    <a href="{% url 'group_show' group.slug %}">
+                      <span class="group-label radius success label">
+                        {{ group.slug }}
+                      </span>
+                      {{ group.name }}
+                    </a>
+                  </h6>
+                </li>
+              {% endfor %}
+            </ul>
           </li>
         {% endfor %}
       </ul>

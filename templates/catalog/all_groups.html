@@ -1,25 +1,43 @@
 {% extends "skel.html" %}
 
+{% load mptt_tags %}
+
 {% block title %}Liste des groupes{% endblock %}
 
 {% block content %}
 <div class="row">
   <div class="columns">
     <h1>Liste des groupes</h1>
-      <ul class="group-list">
-        {% for group in groups %}
-          <li>
-            <h6>
-              <a href="{% url 'group_show' group.slug %}">
-                  <span class="group-label radius success label">
-                    {{ group.slug }}
-                  </span>
-                  {{ group.name }}
-              </a>
-            </h6>
+    <ul class="group-list">
+      {% recursetree categories %}
+        <li>
+          <h5>
+            <a href="{% url 'category_show' node.id %}">{{ node.name }}</a>
+          </h5>
+          {% if node.group_set.all|length > 0 %}
+            <ul class="group-list">
+              {% for group in node.group_set.all %}
+                <li>
+                  <h6>
+                    <a href="{% url 'group_show' group.slug %}">
+                      <span class="group-label radius success label">
+                        {{ group.slug }}
+                      </span>
+                      {{ group.name }}
+                    </a>
+                  </h6>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if not node.is_leaf_node %}
+            <ul>
+              {{ children }}
+            </ul>
+          {% endif %}
           </li>
-        {% endfor %}
-      </ul>
+      {% endrecursetree %}
+    </ul>
   </div>
 </div>
 {% endblock %}

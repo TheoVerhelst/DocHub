@@ -71,14 +71,14 @@ def leave_group(request, slug):
 @login_required
 def show_my_groups(request):
     return render(request, "catalog/my_groups.html", {
+        "groups" : request.user.following_groups(),
         "suggestions": suggest(request.user)
     })
-    
+
 @login_required
 def show_all_groups(request):
     return render(request, "catalog/all_groups.html", {
-        "groups" : Group.objects.all(),
-        "categories" : Category.objects.all()
+        "categories" : Category.objects.prefetch_related('group_set').all()
     })
 
 

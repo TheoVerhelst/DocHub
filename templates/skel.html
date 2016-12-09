@@ -126,18 +126,16 @@
               <ul class="group-bulletlist">
                 {% for type in group_list %}
                   <li>
-                    <a href="#" class="sidebar-button">
-                      <i class="fi-arrow-right"></i>
-                      {% if type.grouper == 'C' %}
-                        Cours
-                      {% elif type.grouper == 'P' %}
-                        Public
-                      {% elif type.grouper == 'R' %}
-                        Privé
-                      {% else %}
-                        Autre
-                      {% endif %}
-                    </a>
+                    &emsp;<i class="fi-arrow-right"></i>
+                    {% if type.grouper == 'C' %}
+                      Cours
+                    {% elif type.grouper == 'P' %}
+                      Public
+                    {% elif type.grouper == 'R' %}
+                      Privé
+                    {% else %}
+                      Autre
+                    {% endif %}
                     <ul class="group-bulletlist">
                       {% for group in type.list %}
                         <li class="nav-link">
