@@ -10,8 +10,15 @@
     android:paddingTop="0dp"
     tools:context="be.dochub.dochub.MainActivity">
 
-    <WebView
-        android:id="@+id/activity_main_webview"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/activity_main_webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

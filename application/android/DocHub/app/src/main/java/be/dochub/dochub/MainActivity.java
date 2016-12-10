@@ -1,27 +1,36 @@
 package be.dochub.dochub;
 
-import android.content.Context;
-import android.content.res.Configuration;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
+    private SwipeRefreshLayout mySwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        mWebView.reload();
+                        mySwipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
+
         mWebView = (WebView) findViewById(R.id.activity_main_webview);
-        mWebView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        mWebView.setScrollbarFadingEnabled(false);
+        mWebView.setVerticalScrollBarEnabled(false);
+        mWebView.setHorizontalScrollBarEnabled(false);
+
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
@@ -38,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             mWebView.loadUrl("https://dochub.be/");
         }
         else {
+            // Restore page
             mWebView.restoreState(savedInstanceState);
         }
     }
