@@ -6,10 +6,14 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+
 public class DocHubWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if(Uri.parse(url).getHost().endsWith("dochub.be")) {
+            return false;
+        }
+        if(url.equals("https://www.ulb.ac.be/commons/intranet?_prt=ulb:gehol&_ssl=on&_prtm=redirect&_appl=http://dochub.be/auth")) {
             return false;
         }
 
@@ -17,5 +21,4 @@ public class DocHubWebViewClient extends WebViewClient {
         view.getContext().startActivity(intent);
         return true;
     }
-
 }
