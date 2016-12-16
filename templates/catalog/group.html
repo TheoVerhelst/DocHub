@@ -52,7 +52,6 @@
               <div class="row group-row group-row-content">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
-
                 {% for field in thread_form %}
                   {% include "simple_input.html" %}
                 {% endfor %}
@@ -65,39 +64,30 @@
             </form>
           </div>
         </div>
-        {% for thread in threads %}
-          <div class="row group-row thread">
-            <img width="50" src="{{ thread.user.get_photo }}" class="user-photo user-photo-small left" />
-            <div class="group-row-content">
-              <h5>
-                <a href="{% url 'thread_show' thread.id %}">{{ thread.name }} </a>
-                <small>par {{ thread.user.name }} <i class="fi-clock"></i>{{ thread.created|date:"d F Y" }}</small>
-              </h5>
-              <div class="row user-message">
-                  {{ thread.message_set.first|markdown }}
-              </div>
-              <button class="secondary button radius expand show-messages" data-toggle="thread-{{ thread.id }}">
-                {% if thread.message__count == 1 %}
-                  Répondre
-                {% elif thread.message__count == 2 %}
-                  Afficher la réponse
-                {% else %}
-                  Afficher {{ thread.message__count|add:"-1" }} réponses
-                {% endif %}
-              </button>
-              <div class="hide" id="thread-{{ thread.id }}">
-                {% for message in thread.message_set.all|slice:"1:" %}
+        <h3>Discussions</h3>
+        <ul class="accordion" data-accordion>
+          {% for thread in threads %}
+            <li class="accordion-navigation">
+              <a href="#thread-{{ thread.id }}">
+                <h4>
+                  {{ thread.name }}
+                  <small>par {{ thread.user.name }}, le {{ thread.created|date:"d F Y" }}</small>
+                </h4>
+              </a>
+              <div id="thread-{{ thread.id }}" class="content">
+                {% for message in thread.message_set.all %}
                   {% include "telepathy/message.html" %}
                 {% endfor %}
                 {% include "telepathy/message_form.html" %}
+                <a href="{% url 'thread_show' thread.id %}" class="button radius">Voir la discussion</a>
               </div>
-            </div>
-          </div>
-        {% empty %}
-          <h3>Il n’y a encore rien dans ce groupe...</h3>
-          <p>Personne n’est encore passé ici on dirait.<br>
-            Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
-        {% endfor %}
+            </li>
+          {% empty %}
+            <h3>Il n’y a encore rien dans ce groupe...</h3>
+            <p>Personne n’est encore passé ici on dirait.<br>
+              Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
+          {% endfor %}
+        </ul>
       </div>
       <div class="content" id="chat">
           <h1>CHAAAAAAT!!!!!!!!!!!!!!!!!</h1>
