@@ -72,10 +72,15 @@ def leave_group(request, slug):
 @login_required
 def create_group(request):
     if request.method == 'POST':
-        form = NewGroupForm()
+        form = NewGroupForm(request.POST)
 
         if form.is_valid():
-            pass
+            slug = form.cleaned_data['slug']
+            group = form.save()
+
+            partial(actions.follow, actor_only=False)(request.user, group)
+            nextpage = request.GET.get('next', reverse('group_show', args=[slug]))
+            return HttpResponseRedirect(nextpage)
     else:
         form = NewGroupForm()
 
