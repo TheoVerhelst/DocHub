@@ -94,6 +94,7 @@ def create_group(request):
 def delete_group(request, slug):
     group = get_object_or_404(Group, slug=slug)
     if group in request.user.moderated_groups.all():
+        actions.unfollow(request.user, group)
         group.delete()
     else:
         return HttpResponseForbidden()
