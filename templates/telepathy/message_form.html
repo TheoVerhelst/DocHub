@@ -20,12 +20,18 @@
         <div class="row">
           <p class="hide-for-small-only text-left">
             <input type="submit" class="button success radius" value="{% if edit %}Editer{% else %}Répondre{% endif %}" />
+            {% if show_thread_link %}
+              <a href="{% url 'thread_show' thread.id %}" class="button radius">Voir la discussion</a>
+            {% endif %}
             {% if edit %}
               <a href="{% url 'thread_show' thread.id %}#message-{{ edited_message.id }}" class="button radius alert">Annuler</a>
             {% endif %}
           </p>
           <p class="hide-for-medium-up">
             <input type="submit" class="button success expand radius" value="{% if edit %}Editer{% else %}Répondre{% endif %}" />
+            {% if show_thread_link %}
+              <a href="{% url 'thread_show' thread.id %}" class="button radius expand">Voir la discussion</a>
+            {% endif %}
             {% if edit %}
               <a href="{% url 'thread_show' thread.id %}#message-{{ edited_message.id }}" class="button radius alert expand">Annuler</a>
             {% endif %}

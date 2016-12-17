@@ -6,7 +6,7 @@
   <div class="large-1 show-for-large-up columns ">
     <img width="50" src="{{ message.user.get_photo }}" class="user-photo user-photo-small" />
   </div>
-  <div class="large-10 medium-11 columns" id="message-{{ message.id }}">
+  <div class="large-11 medium-11 columns" id="message-{{ message.id }}">
     <div class="row user-message-header">
       <div class="large-6 columns">
         <strong>{{ message.user.name }}</strong>
@@ -32,7 +32,5 @@
       </div>
     </div>
     <div class="row user-message-content">{{ message.text|markdown }}</div>
-  </div>
-  <div class="large-1 columns ">
   </div>
 </div>

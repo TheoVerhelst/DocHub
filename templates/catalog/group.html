@@ -78,8 +78,9 @@
                 {% for message in thread.message_set.all %}
                   {% include "telepathy/message.html" %}
                 {% endfor %}
-                {% include "telepathy/message_form.html" %}
-                <a href="{% url 'thread_show' thread.id %}" class="button radius">Voir la discussion</a>
+                {% with show_thread_link=True %}
+                  {% include "telepathy/message_form.html" %}
+                {% endwith %}
               </div>
             </li>
           {% empty %}
