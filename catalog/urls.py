@@ -12,6 +12,7 @@ urlpatterns = [
     url(r"^join/(?P<slug>[^/]*)$", catalog.views.join_group, name="join_group"),
     url(r"^leave/(?P<slug>[^/]*)$", catalog.views.leave_group, name="leave_group"),
     url(r"^create_group/$", catalog.views.create_group, name="create_group"),
+    url(r"^delete_group/(?P<slug>[^/]*)$", catalog.views.delete_group, name="delete_group"),
     url(r"^my_groups/$", catalog.views.show_my_groups, name="show_my_groups"),
     url(r"^all_groups/$", catalog.views.show_all_groups, name="show_all_groups"),
 

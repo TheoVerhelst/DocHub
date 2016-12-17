@@ -5,6 +5,7 @@ import json
 from functools import partial
 
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -79,6 +80,7 @@ def create_group(request):
             group = form.save()
 
             partial(actions.follow, actor_only=False)(request.user, group)
+            request.user.moderated_groups.add(group)
             nextpage = request.GET.get('next', reverse('group_show', args=[slug]))
             return HttpResponseRedirect(nextpage)
     else:
@@ -87,6 +89,15 @@ def create_group(request):
     return render(request, "catalog/create_group.html", {
         "form" : form
     })
+
+@login_required
+def delete_group(request, slug):
+    group = get_object_or_404(Group, slug=slug)
+    if group in request.user.moderated_groups.all():
+        group.delete()
+    else:
+        return HttpResponseForbidden()
+    return render(request, "catalog/delete_group.html")
 
 
 @login_required

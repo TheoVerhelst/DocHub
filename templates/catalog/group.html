@@ -36,6 +36,9 @@
       <li class="tab-title"><a href="#chat">Chat</a></li>
       <li class="tab-title"><a href="#documents">Documents ({{documents.count}})</a></li>
       <li class="tab-title"><a href="#about">À propos</a></li>
+      {% if group in request.user.moderated_groups.all %}
+        <li class="tab-title"><a href="#admin">Administration</a></li>
+      {% endif %}
     </ul>
   </div>
   <div class="row">
@@ -91,7 +94,7 @@
         </ul>
       </div>
       <div class="content" id="chat">
-          <h1>CHAAAAAAT!!!!!!!!!!!!!!!!!</h1>
+          <h3>Chat</h3>
       </div>
       <div class="content" id="documents" data-id="{{ group.slug }}">
         <div class="row group-row document">
@@ -151,23 +154,28 @@
           <p>Personne n’est encore passé ici on dirait.<br>
             N'hésitez pas à poster un message ou à uploader un document&nbsp;!</p>
         {% endfor %}
-        </div>
-        <div class="content" id="about">
-          <div class="row">
-            <div class="large-9 medium-9 small-12 columns">
-              <h2>À propos</h2>
-              {% if followers_count > 1 %}
-                <p>{{followers_count}} personnes sont membre de ce groupe.</p>
-              {% endif %}
-            </div>
-            <div class="large-3 medium-3 small-12 columns">
-              {% if group.isCourse %}
-              <a class="button radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
-              {% endif %}
-            </div>
+      </div>
+      <div class="content" id="about">
+        <div class="row">
+          <div class="large-9 medium-9 small-12 columns">
+            <h3>À propos</h3>
+            {% if followers_count > 1 %}
+              <p>{{followers_count}} personnes sont membre de ce groupe.</p>
+            {% endif %}
+          </div>
+          <div class="large-3 medium-3 small-12 columns">
+            {% if group.isCourse %}
+            <a class="button radius" href="{{ group.gehol_url }}" target="_blank">Horaire sur GeHol</a>
+            {% endif %}
           </div>
         </div>
       </div>
+      {% if group in request.user.moderated_groups.all %}
+        <div class="content" id="admin">
+          <h3>Administration</h3>
+          <a class="button alert radius" href="{% url 'delete_group' group.slug %}">Supprimer ce groupe</a>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endwith %}
