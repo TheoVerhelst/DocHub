@@ -159,9 +159,54 @@
         <div class="row">
           <div class="large-9 medium-9 small-12 columns">
             <h3>À propos</h3>
-            {% if followers_count > 1 %}
-              <p>{{followers_count}} personnes sont membre de ce groupe.</p>
-            {% endif %}
+            <h4 class="subheader">Membres</h4>
+            <table>
+              {% for follower in followers %}
+                <tr>
+                  <td>{{ follower.first_name }} {{ follower.last_name }} <small>({{ follower.netid }})</small></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td>Personne n'est inscrit dans ce groupe pour l'instant. Soyez le premier&nbsp;!</td>
+                </tr>
+              {% endfor %}
+            </table>
+            <h4 class="subheader">Caractéristiques</h4>
+            <table>
+              <tr>
+                <td><strong>Type de groupe</strong></td>
+                <td>{{ group.get_type_display }}</td>
+              </tr>
+              <tr>
+                <td><strong>Catégorie{{ group.categories.all|pluralize }}</strong></td>
+                <td>{{ group.categories.all|join:", " }}</td>
+              </tr>
+            </table>
+            <h4 class="subheader">Statistique</h4>
+            {% with stats=group.get_stats %}
+              <table>
+                <tr>
+                  <td><strong>Nombre de discussions dans le forum</strong></td>
+                  <td>{{ stats.threads_count }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Nombre de messages dans le forum</strong></td>
+                  <td>{{ stats.threads_messages_count }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Nombre de message dans le chat</strong></td>
+                  <td>{{ stats.chat_messages_count }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Nombre de documents</strong></td>
+                  <td>{{ stats.documents_count }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Nombre de personnes inscrites</strong></td>
+                  <td>{{ stats.followers_count }}</td>
+                </tr>
+              </table>
+            {% endwith %}
           </div>
           <div class="large-3 medium-3 small-12 columns">
             {% if group.isCourse %}

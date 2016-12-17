@@ -47,7 +47,7 @@ class GroupDetailView(LoginRequiredMixin, DetailView):
                 .prefetch_related('message_set')
         context['thread_form'] = NewThreadForm()
         context['form'] = MessageForm()
-        context['followers_count'] = len(actstream.models.followers(group))
+        context['followers'] = actstream.models.followers(group)
 
         return context
 
