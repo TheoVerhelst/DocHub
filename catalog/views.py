@@ -19,6 +19,7 @@ import actstream
 
 from catalog.models import Category, Group
 from catalog.suggestions import suggest
+from catalog.forms import NewGroupForm
 from telepathy.forms import NewThreadForm, MessageForm
 
 
@@ -66,6 +67,21 @@ def join_group(request, slug):
 @login_required
 def leave_group(request, slug):
     return set_follow_group(request, slug, actions.unfollow)
+
+
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        form = NewGroupForm()
+
+        if form.is_valid():
+            pass
+    else:
+        form = NewGroupForm()
+
+    return render(request, "catalog/create_group.html", {
+        "form" : form
+    })
 
 
 @login_required

@@ -1,0 +1,22 @@
+{% extends "skel.html" %}
+{% block title %}Créer un groupe{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="columns">
+    <h1>Créer un groupe</h1>
+    <form action="{% url 'create_group' %}" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% with show_label=True %}
+          {% for field in form %}
+            {% include "simple_input.html" %}
+          {% endfor %}
+        {% endwith %}
+        <input type="submit" class="button success radius expand" value="Envoyer" />
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
