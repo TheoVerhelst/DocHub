@@ -29,11 +29,11 @@ class Category(MPTTModel):
 @python_2_unicode_compatible
 class Group(models.Model):
     GROUP_TYPES= (
-        ("C", "Course"),
+        ("C", "Cours"),
         ("P", "Public"),
-        ("R", "Private"),
+        ("R", "Privé"),
     )
-    type = models.CharField(max_length=1, choices=GROUP_TYPES)
+    type = models.CharField(max_length=1, choices=GROUP_TYPES, blank=False, default="P")
     name = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(unique=True, db_index=True)
     categories = models.ManyToManyField(Category)
@@ -46,7 +46,7 @@ class Group(models.Model):
 
     def isPublic(self):
         return self.type == "P"
-        
+
     def isPrivate(self):
         return self.type == "R"
 

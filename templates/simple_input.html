@@ -1,3 +1,5 @@
+{% load form_helpers %}
+
 <div class="row collapse">
   {% if show_label %}
     <div class="small-12 medium-1 columns">
@@ -13,9 +15,16 @@
   {% else %}
     <div class="small-12 columns">
   {% endif %}
-  <label {% if field.errors %} class="error" {% endif %}>
-    {{ field }}
-  </label>
+  {% if field|fieldtype == "RadioSelect" %}
+    {% for radio in field %}
+      {{ radio.tag }}
+      <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+    {% endfor %}
+  {% else %}
+    <label {% if field.errors %} class="error" {% endif %}>
+      {{ field }}
+    </label>
+  {% endif %}
   {% if field.errors %}
     <small class="error">
       {% for error in field.errors %}

@@ -9,7 +9,7 @@
         {{ form.non_field_errors }}
 
         {% with show_label=True %}
-          {% for field in form %}
+          {% for field in form|slice:"1:" %}
             {% include "simple_input.html" %}
           {% endfor %}
         {% endwith %}
