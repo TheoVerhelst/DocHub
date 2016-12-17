@@ -218,7 +218,17 @@
       {% if group in request.user.moderated_groups.all %}
         <div class="content" id="admin">
           <h3>Administration</h3>
-          <a class="button alert radius" href="{% url 'delete_group' group.slug %}">Supprimer ce groupe</a>
+          <div class="row panel">
+            <div class="small-12 medium-3 columns">
+              <br />
+              <a class="button alert radius expand" href="{% url 'delete_group' group.slug %}">Supprimer ce groupe</a>
+            </div>
+            <div class="small-12 medium-9 columns">
+              <h4>Attention&nbsp;!</h4>
+              <p>Toutes les discussions et les documents relatifs à ce groupe seront supprimés,
+              ainsi que les messages du chat.</p>
+            </div>
+          </div>
         </div>
       {% endif %}
     </div>
@@ -228,9 +238,6 @@
 
 {% block script %}
 <script type="text/javascript">
-    loadGroupViewer('threads');
-    $('.show-messages').click(function(){
-        $('#' + $(this).attr('data-toggle')).toggle();
-    });
+    loadGroupViewer('documents');
 </script>
 {% endblock %}
