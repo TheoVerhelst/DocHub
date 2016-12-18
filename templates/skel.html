@@ -139,14 +139,12 @@
                     {% else %}
                       Autre
                     {% endif %}
-                    <ul class="group-bulletlist">
-                      {% for group in type.list %}
-                        <li class="nav-link">
-                          <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
-                        </li>
-                      {% endfor %}
-                    </ul>
                   </li>
+                  {% for group in type.list %}
+                    <li class="nav-link">
+                      <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
+                    </li>
+                  {% endfor %}
                 {% endfor %}
               </ul>
             </li>
