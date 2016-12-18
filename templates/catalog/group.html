@@ -68,13 +68,16 @@
           </div>
         </div>
         <h3>Discussions</h3>
-        <ul class="accordion" data-accordion>
+        <ul class="accordion thread-list" data-accordion>
           {% for thread in threads %}
             <li class="accordion-navigation">
               <a href="#thread-{{ thread.id }}">
                 <h4>
                   {{ thread.name }}
-                  <small>par {{ thread.user.name }}, le {{ thread.created|date:"d F Y" }}</small>
+                  <small>
+                    <i class="fi-torso"></i> {{ thread.user.name }}
+                    <i class="fi-clock"></i> {{ thread.created|date:"d F Y" }}
+                  </small>
                 </h4>
               </a>
               <div id="thread-{{ thread.id }}" class="content">
@@ -220,8 +223,8 @@
             </div>
             <div class="small-12 medium-9 columns">
               <h4>Attention&nbsp;!</h4>
-              <p>Toutes les discussions et les documents relatifs à ce groupe seront supprimés,
-              ainsi que les messages du chat.</p>
+              <p>Toutes les discussions et les documents relatifs à ce groupe,
+              ainsi que les messages du chat, seront supprimés.</p>
             </div>
           </div>
         </div>
