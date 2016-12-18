@@ -110,10 +110,9 @@ def show_my_groups(request):
 
 @login_required
 def show_all_groups(request):
-    return render(request, "catalog/all_groups.html", {
-        "categories" : Category.objects.prefetch_related('group_set').all()
-    })
-
+    pk = Category.objects.all().first().get_root().pk
+    nextpage = request.GET.get('next', reverse('category_show', args=[pk]))
+    return HttpResponseRedirect(nextpage)
 
 @cache_page(60 * 60)
 @login_required
