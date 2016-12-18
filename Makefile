@@ -29,3 +29,6 @@ database:
 
 	@echo "Creating some tags"
 	@echo "from tags.models import Tag; [Tag.objects.create(name=x) for x in ('syllabus', 'officiel', 'examen')]" | $(PY) manage.py shell > /dev/null
+	
+flush:
+	$(PY) manage.py flush
