@@ -53,6 +53,7 @@ INSTALLED_APPS += (
     'analytical',
     'pipeline',
     'django_js_reverse',
+	'channels',
 )
 
 # apps
@@ -104,6 +105,12 @@ ACTSTREAM_SETTINGS = {
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', 'djdt']
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "ROUTING": "www.routing.channel_routing",
+    },
+}
 
 PIPELINE = {
     'COMPILERS': ('react.utils.pipeline.JSXCompiler',
