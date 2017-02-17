@@ -21,6 +21,11 @@ django-pipeline
 PyReact
 django-js-reverse
 
+# Websockets
+channels
+asgi-redis
+daphne
+
 # Dev
 django-extensions
 ipython
