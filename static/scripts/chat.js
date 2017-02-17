@@ -13,7 +13,7 @@ function initChat()
 {
     if(!chatInitialized)
     {
-        socket = new WebSocket("ws://" + window.location.host + "/chat/");
+        socket = new WebSocket("ws://" + window.location.host + "/chat/" + $("#chat-group").val());
 
         socket.onmessage = receiveMessage;
 
