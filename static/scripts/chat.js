@@ -1,12 +1,14 @@
-socket = null;
+var socket = null;
 
 // We need this boolean to indicate wether initChat has already been called
 // Because it is called every time the tab is clicked
-chatInitialized = false;
+var chatInitialized = false;
 
 function receiveMessage(message)
 {
-    $("#chat-text").append("<li><span class='radius secondary label'>User</span> " + message.data + "</li>");
+    // The message is in the form "username/text..."
+    var [username, text] = message.data.split("/", 2)
+    $("#chat-text").append("<li><span class='radius secondary label'>" + username + "</span> " + text + "</li>");
 }
 
 function initChat()
