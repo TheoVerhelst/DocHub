@@ -53,7 +53,7 @@ INSTALLED_APPS += (
     'analytical',
     'pipeline',
     'django_js_reverse',
-	'channels',
+    'channels',
 )
 
 # apps
@@ -107,7 +107,7 @@ JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', 'djdt']
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
         "ROUTING": "www.routing.channel_routing",
     },
 }
