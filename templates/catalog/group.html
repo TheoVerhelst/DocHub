@@ -97,7 +97,27 @@
         </ul>
       </div>
       <div class="content" id="chat">
-          <h3>Chat</h3>
+        <div class="row user-message">
+          <div class="row user-message-header">
+            <div class="columns">
+              <h5>Chat</h5>
+            </div>
+          </div>
+          <div class="row user-message-content">
+            <div class="small-12 columns">
+              <ul class="no-bullet" id="chat-text">
+              </ul>
+            </div>
+          </div>
+          <div class="row user-message-content">
+            <div class="small-10 columns">
+              <input type="text" id="chat-input" />
+            </div>
+            <div class="small-2 columns">
+              <a class="button success radius" value="Envoyer" id="chat-button"/>Envoyer</a>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="content" id="documents" data-id="{{ group.slug }}">
         <div class="row group-row document">
