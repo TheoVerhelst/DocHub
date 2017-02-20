@@ -65,6 +65,7 @@ INSTALLED_APPS += (
     'catalog',
     'tags',
     'notifications',
+    'chat',
 )
 
 # must be after everything
