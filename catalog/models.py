@@ -76,7 +76,7 @@ class Group(models.Model):
         return {
             "threads_count" : threads.count(),
             "threads_messages_count" : threads_messages_count,
-            "chat_messages_count" : self.message_set.all().count(),
+            "chat_messages_count" : self.chat_messages.all().count(),
             "documents_count" : self.document_set.all().count(),
             "followers_count" : len(actstream.models.followers(self))
         }
