@@ -31,3 +31,8 @@ function initChat()
 $(document).ready(initChat);
 
 $("#chat-button").click(sendMessage);
+$("#chat-input").keypress(function(e)
+{
+  if (e.which == 13)
+      sendMessage(e);
+});
