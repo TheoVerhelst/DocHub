@@ -1,0 +1,53 @@
+<div class="content active" id="threads">
+  <div class="row user-message">
+    <div class="row user-message-header">
+      <div class="columns">
+        <h5>Poster un message</h5>
+      </div>
+    </div>
+    <div class="row user-message-content">
+      <form action="{% url 'thread_put' group.slug %}" method="post">
+        <div class="row group-row group-row-content">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          {% for field in thread_form %}
+            {% include "simple_input.html" %}
+          {% endfor %}
+        </div>
+        <div class="row">
+            <div class="columns">
+                <input type="submit" class="button success radius" value="Envoyer" />
+            </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <h3>Discussions</h3>
+  <ul class="accordion thread-list" data-accordion>
+    {% for thread in threads %}
+      <li class="accordion-navigation">
+        <a href="#thread-{{ thread.id }}">
+          <h4>
+            {{ thread.name }}
+            <small>
+              <i class="fi-torso"></i> {{ thread.user.name }}
+              <i class="fi-clock"></i> {{ thread.created|date:"d F Y" }}
+            </small>
+          </h4>
+        </a>
+        <div id="thread-{{ thread.id }}" class="content">
+          {% for message in thread.message_set.all %}
+            {% include "telepathy/message.html" %}
+          {% endfor %}
+          {% with show_thread_link=True %}
+            {% include "telepathy/message_form.html" %}
+          {% endwith %}
+        </div>
+      </li>
+    {% empty %}
+      <h3>Il n’y a encore rien dans ce groupe...</h3>
+      <p>Personne n’est encore passé ici on dirait.<br>
+        Vous pourriez poster un message ou encore uploader un document en cliquant sur les boutons ci-dessus. </p>
+    {% endfor %}
+  </ul>
+</div>

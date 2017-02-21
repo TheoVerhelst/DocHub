@@ -1,0 +1,61 @@
+{% load has_perm_on %}
+
+<div class="content" id="documents" data-id="{{ group.slug }}">
+  <div class="row group-row document">
+      <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
+  </div>
+  {% for document in documents %}
+    <div class="row group-row document"
+      node-keywords="{% for kw in document.tags.all %}{{kw}} {% endfor %}"
+    >
+      {% if document.state == 'DONE' %}
+        <a href="{% url 'document_show' document.id %}">
+          <i class="fi-page-copy round-icon big"></i>
+        </a>
+      {% else %}
+        <i class="fi-loop round-icon big"></i>
+      {% endif %}
+      <div class="group-row-content">
+        <h5>
+          {% if document.state == "DONE" %}
+            <a href="{% url 'document_show' document.id %}"> {{ document.name }} </a>
+            {% if request.user|has_perm_on:document %}
+              <a href="{% url 'document_edit' document.id %}">
+                <abbr title="Editer ce document">
+                  <i class="fi-pencil dark-grey"></i>
+                </abbr>
+              </a>
+              <a href="{% url 'document_reupload' document.id %}">
+                <abbr title="Uploader une nouvelle version">
+                  <i class="fi-page-add dark-grey"></i>
+                </abbr>
+              </a>
+            {% endif %}
+          {% else %}
+            {{ document.name }}
+          {% endif %}
+          <small>par {{ document.user.name }}</small>
+        </h5>
+        {% if document.description %}
+          <p>{{ document.description|truncatechars:200 }}</p>
+        {% endif %}
+        <div class="group-content-last-line">
+          <i class="fi-page-filled"></i>  {{ document.pages }} page{{ document.pages|pluralize }}
+          <i class="fi-clock"></i> Uploadé le {{ document.date|date:"d F Y" }}
+          {% if document.tags.all %}<i class="fi-pricetag-multiple"></i> {% endif %}
+          {% for kw in document.tags.all%}
+            <a data-id="{{kw.id}}" href="#"
+               style="background-color: {{kw.color}}; border: solid 2px {{kw.color}};"
+               class="radius label tag-item">
+              {{kw}}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <h3>Il n’y a encore rien dans ce groupe...</h3>
+    <p>Personne n’est encore passé ici on dirait.<br>
+      N'hésitez pas à poster un message ou à uploader un document&nbsp;!</p>
+  {% endfor %}
+</div>
