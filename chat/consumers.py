@@ -84,6 +84,6 @@ def send_previous_messages(channels_group, group_slug, limit=20):
     be used when a user connects.
     """
     messages = Message.objects.filter(group__slug=group_slug)[:limit]
-    for message in messages:
+    for message in reversed(messages):
         channels_group.send({'text': message.dump_json()})
 
