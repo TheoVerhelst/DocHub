@@ -45,7 +45,7 @@ def ws_receive(message):
     Connected to "websocket.receive".
     """
     # Stick the message onto the processing queue
-    channels.Channel("chat.messages").send({
+    channels.Channel("chat.receive").send({
         'group': message.channel_session['group'],
         'text': message['text'],
         'user': message.user
