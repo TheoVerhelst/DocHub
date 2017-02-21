@@ -19,6 +19,7 @@ from actstream import actions
 import actstream
 
 from catalog.models import Category, Group
+from chat.models import Message as ChatMessage
 from catalog.suggestions import suggest
 from catalog.forms import NewGroupForm
 from telepathy.forms import NewThreadForm, MessageForm
@@ -48,6 +49,7 @@ class GroupDetailView(LoginRequiredMixin, DetailView):
         context['thread_form'] = NewThreadForm()
         context['form'] = MessageForm()
         context['followers'] = actstream.models.followers(group)
+        context['chat_messages'] = ChatMessage.objects.filter(group=group)[ChatMessage.PRELOADED_MESSAGES:]
 
         return context
 
