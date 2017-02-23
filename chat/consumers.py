@@ -7,6 +7,10 @@ from django.shortcuts import get_object_or_404
 from channels.auth import channel_session_user_from_http, channel_session_user
 from .models import Message
 
+def get_chat_from_message(message):
+    """Returns the channel group to which this message belongs."""
+    return channels.Group("chat" + message.channel_session['group'])
+
 # Websockets
 
 @channel_session_user_from_http
@@ -16,16 +20,14 @@ def ws_chat_connect(message, group_slug):
 
     Connected to "websocket.connect".
     """
-    # Get the instance of the corresponding Group
-    group = get_object_or_404(catalog.models.Group, slug=group_slug)
     message.channel_session['group'] = group_slug
 
-    if group in message.user.following_groups():
+    if group_slug in (group.slug for group in message.user.following_groups()):
         # Reply with an ACK
         message.reply_channel.send({'accept': True})
 
         # Add the user to the chat group
-        channels.Group("chat" + group_slug).add(message.reply_channel)
+        get_chat_from_message(message).add(message.reply_channel)
 
 @channel_session_user
 def ws_chat_receive(message):
@@ -49,7 +51,7 @@ def ws_chat_disconnect(message):
 
     Connected to "websocket.disconnect".
     """
-    channels.Group("chat" + message.channel_session['group']).discard(message.reply_channel)
+    get_chat_from_message(message).discard(message.reply_channel)
 
 
 # Chat

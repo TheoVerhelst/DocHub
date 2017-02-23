@@ -7,6 +7,10 @@ from .models import Document
 from django.shortcuts import get_object_or_404
 from channels.auth import channel_session_user_from_http, channel_session_user
 
+def get_pad_from_message(message):
+    """Returns the channel group to which this message belongs."""
+    return channels.Group("pad" + message.channel_session['document'])
+
 # Websockets
 
 @channel_session_user_from_http
@@ -14,8 +18,6 @@ def ws_pad_connect(message, document_pk):
     """
     Connected to "websocket.connect".
     """
-    # Get the instance of the corresponding Group
-    group = get_object_or_404(Document, pk=document_pk)
     message.channel_session['document'] = document_pk
 
     # TODO: check if user is in the group of the document
@@ -23,8 +25,8 @@ def ws_pad_connect(message, document_pk):
         # Reply with an ACK
         message.reply_channel.send({'accept': True})
 
-        # Add the user to the chat group
-        channels.Group("pad" + document_pk).add(message.reply_channel)
+        # Add the user to the pad
+        get_pad_from_message(message).add(message.reply_channel)
 
 @channel_session_user
 def ws_pad_receive(message):
@@ -51,7 +53,7 @@ def ws_pad_disconnect(message):
 
     Connected to "websocket.disconnect".
     """
-    channels.Group("pad" + message.channel_session['document']).discard(message.reply_channel)
+    get_pad_from_message(message).discard(message.reply_channel)
 
 
 # Pad
@@ -62,9 +64,8 @@ def pad_receive(message):
 
     Connected to "chat.receive".
     """
-    document_pk = message.content['document']
     # Send the message to the group (i.e. all users connected on the group chat)
-    channels.Group("pad" + document_pk).send({'text': json.dumps({
+    get_pad_from_message(message).send({'text': json.dumps({
         'position' : message.content['position'],
         'character' : message.content['character']
     })})
