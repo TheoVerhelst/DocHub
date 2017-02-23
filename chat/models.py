@@ -12,7 +12,7 @@ from django.conf import settings
 class Message(models.Model):
     """Chat message class."""
 
-    PRELOADED_MESSAGES = 20
+    PRELOADED_MESSAGES_COUNT = 20
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="chat_messages")
     group = models.ForeignKey(Group, db_index=True, related_name="chat_messages")

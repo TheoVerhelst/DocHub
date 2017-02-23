@@ -49,7 +49,8 @@ class GroupDetailView(LoginRequiredMixin, DetailView):
         context['thread_form'] = NewThreadForm()
         context['form'] = MessageForm()
         context['followers'] = actstream.models.followers(group)
-        context['chat_messages'] = ChatMessage.objects.filter(group=group)[ChatMessage.PRELOADED_MESSAGES:]
+        chat_messages = ChatMessage.objects.filter(group=group);
+        context['chat_messages'] = chat_messages[chat_messages.count()-ChatMessage.PRELOADED_MESSAGES_COUNT:]
 
         return context
 
