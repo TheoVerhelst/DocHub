@@ -125,7 +125,6 @@ class Document(models.Model):
             self.tags.add(tag)
 
     def is_pad(self):
-        return True
         return self.file_type == ".md"
 
 

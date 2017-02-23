@@ -48,4 +48,4 @@ class MultipleUploadFileForm(forms.Form):
     files = MultiFileField(min_num=1, max_num=25, max_file_size=40 * Mo)
 
 class PadForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5}))
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 20}))
