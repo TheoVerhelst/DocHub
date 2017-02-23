@@ -2,12 +2,7 @@
 
 <div class="content" id="documents">
   <div class="row group-row document">
-    <div class="medium-6 small-12 columns">
-      <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader un fichier</a>
-    </div>
-    <div class="medium-6 small-12 columns">
-      <a class="button expand radius" href="{% url 'document_put' group.slug %}">Créer un pad</a>
-    </div>
+      <a class="button expand radius" href="{% url 'document_put' group.slug %}">Uploader / créer un fichier</a>
   </div>
   <div id="documents-list" data-id="{{ group.slug }}"></div>
 </div>
