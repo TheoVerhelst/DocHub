@@ -15,7 +15,7 @@ from actstream import action
 
 from documents.models import Document
 from catalog.models import Group
-from documents.forms import UploadFileForm, FileForm, MultipleUploadFileForm, ReUploadForm
+from documents.forms import UploadFileForm, FileForm, MultipleUploadFileForm, ReUploadForm, PadForm
 from telepathy.forms import NewThreadForm
 from tags.models import Tag
 from documents import logic
@@ -29,7 +29,15 @@ def upload_file(request, slug):
         form = UploadFileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            file = request.FILES['file']
+            if 'file' in request.FILES:
+                file = request.FILES['file']
+            else:
+                filename = "New Document.md"
+                open(filename, 'w').close()
+                file = open(filename, 'r')
+                # Django needs a size attribute to save the file
+                file.size = 0
+
 
             name, extension = os.path.splitext(file.name)
             name = logic.clean_filename(name)
@@ -50,6 +58,12 @@ def upload_file(request, slug):
             document.save()
 
             document.add_to_queue()
+
+            # Delete temp file
+            try:
+                os.remove(filename)
+            except:
+                pass
 
             return HttpResponseRedirect(reverse('group_show', args=[group.slug]))
 
@@ -131,6 +145,7 @@ def document_edit(request, pk):
 @login_required
 def document_reupload(request, pk):
     document = get_object_or_404(Document, pk=pk)
+    template_name = 'documents/document_reupload.html'
 
     if not request.user.write_perm(obj=document):
         return HttpResponse('You may not edit this document.', status=403)
@@ -165,9 +180,13 @@ def document_reupload(request, pk):
             return HttpResponseRedirect(reverse('group_show', args=(document.group.slug,)))
 
     else:
-        form = ReUploadForm()
+        if document.is_pad():
+            template_name = 'documents/document_pad.html'
+            form = PadForm()
+        else:
+            form = ReUploadForm()
 
-    return render(request, 'documents/document_reupload.html', {'form': form, 'document': document})
+    return render(request, template_name, {'form': form, 'document': document})
 
 
 @login_required

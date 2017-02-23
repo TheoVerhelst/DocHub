@@ -124,6 +124,10 @@ class Document(models.Model):
             tag = Tag.objects.get_or_create(name=tag)[0]
             self.tags.add(tag)
 
+    def is_pad(self):
+        return True
+        return self.file_type == ".md"
+
 
 class Page(models.Model):
     numero = models.IntegerField(db_index=True)

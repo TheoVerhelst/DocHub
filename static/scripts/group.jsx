@@ -91,7 +91,7 @@ const GroupDocument = React.createClass({
     reupload_icon: function(){
         if (this.ready() && this.editable()){
             return <a href={this.reupload_url()}>
-                <i className="fi-page-add dark-grey" title="Nouvelle version"></i>
+                <i className="fi-page-edit dark-grey" title="Nouvelle version"></i>
             </a>;
         }
     },

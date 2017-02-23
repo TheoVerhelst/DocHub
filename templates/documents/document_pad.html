@@ -1,0 +1,69 @@
+{% extends "skel.html" %}
+{% block title %}Éditer {{document.name}}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="small-12 columns">
+    <h1>Éditer {{document.name}}</h1>
+    <ul class="tabs" data-tab>
+      <li class="tab-title active">
+        <a href="#edit-tab" >
+          <i class="fi-page-edit"></i>
+          Édition
+        </a>
+      </li>
+      <li class="tab-title">
+        <a href="#preview-tab" >
+          <i class="fi-eye"></i>
+          Aperçu
+        </a>
+      </li>
+    </ul>
+    <div class="tabs-content">
+      <div class="content active row" id="edit-tab">
+        <div class="medium-8 small-12 columns">
+          <form action="" method="post" enctype="multipart/form-data" class="dropzone">
+              {% csrf_token %}
+              {{ form.non_field_errors }}
+
+              {% with form.file as field %}
+                  {% if field.errors %}
+                    <small class="error">
+                      {% for error in field.errors %}
+                        {{error}}</br>
+                      {% endfor %}
+                    </small>
+                  {% endif %}
+                  <div class="panel callout drop-panel">
+                      <br>
+                      <div class="row">
+                          <div class="small-6 columns">
+                              {{field}}
+                          </div>
+                          <div  class="small-6 columns">
+                          </div>
+                      </div>
+                  </div>
+              {% endwith %}
+              <p class="text-right"><input type="submit" class="button success radius" value="Envoyer" /></p>
+          </form>
+        </div>
+        <div class="medium-4 small-12 columns">
+          <div class="alert-box info radius row">
+            <div class="small-3 columns">
+              <i class="fi-info round-icon big"></i>
+            </div>
+            <div class="small-9 columns">
+              <p>Aide</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content row" id="preview-tab">
+        <div class="medium-8 small-12 columns">
+          <p>PREVIEW</p>
+        </div>
+      </div>
+  </div>
+</div>
+{% endblock %}

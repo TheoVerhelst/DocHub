@@ -36,7 +36,7 @@ class FileForm(forms.Form):
 
 
 class UploadFileForm(FileForm):
-    file = forms.FileField(validators=[validate_uploaded_file])
+    file = forms.FileField(validators=[validate_uploaded_file], required=False)
 
 
 class ReUploadForm(forms.Form):
@@ -46,3 +46,6 @@ class ReUploadForm(forms.Form):
 class MultipleUploadFileForm(forms.Form):
     Mo = 1 << 20
     files = MultiFileField(min_num=1, max_num=25, max_file_size=40 * Mo)
+
+class PadForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5}))
