@@ -90,27 +90,17 @@ def convert_office_to_pdf(self, document_id):
     tmpfile.write(document.original.read())
     tmpfile.flush()
 
-    if document.file_type == ".md":
-
-        htmltmpfile = tempfile.NamedTemporaryFile()
-
-        try:
-            sub = subprocess.check_output(['pandoc', '--from=markdown', '--to=html', tmpfile.name, '-o',  htmltmpfile.name])
-        except OSError:
-            raise MissingBinary("pandoc")
-        except subprocess.CalledProcessError as e:
-            raise DocumentProcessingError(document, exc=e, message='"pandoc" has failed')
-
-        tmpfile.close()
-        tmpfile = htmltmpfile
-        tmpfile.flush()
+    if document.is_pad():
+        command = ['md2pdf', '--output', '/dev/stdout', tmpfile.name]
+    else:
+        command = ['unoconv', '-f', 'pdf', '--stdout', tmpfile.name]
 
     try:
-        sub = subprocess.check_output(['unoconv', '-f', 'pdf', '--stdout', tmpfile.name])
+        sub = subprocess.check_output(command)
     except OSError:
-        raise MissingBinary("unoconv")
+        raise MissingBinary(command[0])
     except subprocess.CalledProcessError as e:
-        raise DocumentProcessingError(document, exc=e, message='"unoconv" has failed: ' + str(e))
+        raise DocumentProcessingError(document, exc=e, message=command[0] + ' has failed: ' + str(e))
 
     document.pdf.save(str(uuid.uuid4()) + ".pdf", ContentFile(sub))
 

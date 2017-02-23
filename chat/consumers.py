@@ -19,7 +19,6 @@ def ws_connect(message):
     # Extract the group slug from the url
     group_slug = message.content['path'].strip("/").split("/")[-1]
     # Get the instance of the corresponding Group
-    print("SLUG = ", group_slug)
     group = get_object_or_404(catalog.models.Group, slug=group_slug)
     message.channel_session['group'] = group_slug
 
