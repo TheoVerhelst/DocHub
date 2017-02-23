@@ -19,7 +19,7 @@ function sendMessage(clickEvent)
 
 function initChat()
 {
-    socket = new WebSocket("ws://" + window.location.host + "/chat/" + $("#chat-group").val());
+    socket = new WebSocket("ws://" + window.location.host + "/chat/" + $("#chat-group").val() + "/");
 
     socket.onmessage = receiveMessage;
 

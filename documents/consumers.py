@@ -1,34 +1,33 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import channels
-import catalog.models
+from .models import Document
 from django.shortcuts import get_object_or_404
 from channels.auth import channel_session_user_from_http, channel_session_user
-from .models import Message
 
 # Websockets
 
 @channel_session_user_from_http
-def ws_chat_connect(message, group_slug):
-    """Handle a websocket connection by adding the user to the group chat and
-    sending him previous messages.
-
+def ws_pad_connect(message, document_pk):
+    """
     Connected to "websocket.connect".
     """
     # Get the instance of the corresponding Group
-    group = get_object_or_404(catalog.models.Group, slug=group_slug)
-    message.channel_session['group'] = group_slug
+    group = get_object_or_404(Document, pk=document_pk)
+    message.channel_session['document'] = document_pk
 
-    if group in message.user.following_groups():
+    # TODO: check if user is in the group of the document
+    if True:
         # Reply with an ACK
         message.reply_channel.send({'accept': True})
 
         # Add the user to the chat group
-        channels.Group("chat" + group_slug).add(message.reply_channel)
+        channels.Group("pad" + document_pk).add(message.reply_channel)
 
 @channel_session_user
-def ws_chat_receive(message):
+def ws_pad_receive(message):
     """Handles a websocket message by putting it on the message channel.
     The message channel is separated from websocket.message so that the sending
     process/consumer can move on immediately and not spend time waiting for the
@@ -36,36 +35,36 @@ def ws_chat_receive(message):
 
     Connected to "websocket.receive".
     """
+
+    message_data = json.load(message['text'])
     # Stick the message onto the processing queue
-    channels.Channel("chat.receive").send({
-        'group': message.channel_session['group'],
-        'text': message['text'],
+    channels.Channel("pad.receive").send({
+        'document': message.channel_session['document'],
+        'position': message_data['position'],
+        'character': message_data['character'],
         'user': message.user
     })
 
 @channel_session_user
-def ws_chat_disconnect(message):
-    """Disconnects a user form a chat group.
+def ws_pad_disconnect(message):
+    """Disconnects a user form a pad.
 
     Connected to "websocket.disconnect".
     """
-    channels.Group("chat" + message.channel_session['group']).discard(message.reply_channel)
+    channels.Group("pad" + message.channel_session['document']).discard(message.reply_channel)
 
 
-# Chat
+# Pad
 
-def chat_receive(message):
+def pad_receive(message):
     """Handles a websocket message by saving it and broadcasting it to all
     connected users.
 
     Connected to "chat.receive".
     """
-    # Save the message in the database
-    group_slug = message.content['group']
-    chatMessage = Message.objects.create(
-        user=message.content['user'],
-        group=get_object_or_404(catalog.models.Group, slug=group_slug),
-        text=message.content['text']
-    )
+    document_pk = message.content['document']
     # Send the message to the group (i.e. all users connected on the group chat)
-    channels.Group("chat" + group_slug).send({'text': chatMessage.dump_json()})
+    channels.Group("pad" + document_pk).send({'text': json.dumps({
+        'position' : message.content['position'],
+        'character' : message.content['character']
+    })})
