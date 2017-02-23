@@ -13,6 +13,8 @@ ve:
 
 packages: ve
 	ve/bin/pip install -r requirements.txt
+	# markdown2pdf is written in python2, convert it to python3
+	2to3 ve/lib/python3.5/site-packages/markdown2pdf/__init__.py -w
 	chmod +x ./manage.py
 
 database:
@@ -29,6 +31,6 @@ database:
 
 	@echo "Creating some tags"
 	@echo "from tags.models import Tag; [Tag.objects.create(name=x) for x in ('syllabus', 'officiel', 'examen')]" | $(PY) manage.py shell > /dev/null
-	
+
 flush:
 	$(PY) manage.py flush

@@ -21,6 +21,9 @@ django-pipeline
 PyReact
 django-js-reverse
 
+# Markdown support for pad
+markdown2pdf
+
 # Websockets
 channels
 asgi-redis
