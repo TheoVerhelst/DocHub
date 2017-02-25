@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import os
 import uuid
 import unicodedata
+import tempfile
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render
@@ -154,10 +155,28 @@ def document_reupload(request, pk):
         return HttpResponse('You may not edit this document while it is processing.', status=403)
 
     if request.method == 'POST':
-        form = ReUploadForm(request.POST, request.FILES)
+        if document.is_pad():
+            form = PadForm(request.POST)
+        else:
+            form = ReUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
-            file = request.FILES['file']
+            # If the document is a pad, we simulate an upload by creating
+            # a temp file with the pad's content, opening it and giving it to
+            # Django as if it was uploaded in the form
+            if document.is_pad():
+
+                tmpfile = tempfile.NamedTemporaryFile("w+")
+                tmpfile.write(form.cleaned_data['text'])
+                tmpfile.flush()
+
+                # Open the temp file for Django to simulate an uploaded file
+                file = open(tmpfile.name, 'r')
+                # Django needs a size attribute to save the file
+                file.size = 0
+            else:
+                file = request.FILES['file']
+
             name, extension = os.path.splitext(file.name)
 
             document.pdf.delete(save=False)
@@ -176,6 +195,12 @@ def document_reupload(request, pk):
                 action_object=document,
                 target=document.group
             )
+
+            # Delete temp file
+            try:
+                os.remove(file.name)
+            except:
+                pass
 
             return HttpResponseRedirect(reverse('group_show', args=(document.group.slug,)))
 
