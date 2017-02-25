@@ -21,6 +21,4 @@ function makePreview(event)
 
 $(document).ready(initPad);
 
-$("#preview-tab").click(makePreview);
-
-$("#preview-text").html(markdown.Markdown.toHTML("#Coucou"))
+$("#preview-tab-link").click(makePreview);

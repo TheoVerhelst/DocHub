@@ -107,9 +107,9 @@ ACTSTREAM_SETTINGS = {
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', 'djdt']
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "www.routing.channel_routing",
+    'default': {
+        'BACKEND': 'asgiref.inmemory.ChannelLayer',
+        'ROUTING': 'www.routing.channel_routing',
     },
 }
 
@@ -138,6 +138,18 @@ PIPELINE = {
                 'scripts/*.jsx',
             ),
             'output_filename': 'main.js',
+        },
+        'pad': {
+            'source_filenames': (
+                'scripts/pad.js',
+            ),
+            'output_filename': 'pad.js',
+        },
+        'chat': {
+            'source_filenames': (
+                'scripts/chat.js',
+            ),
+            'output_filename': 'chat.js',
         }
     },
     'STYLESHEETS': {

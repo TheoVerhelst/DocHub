@@ -3,7 +3,7 @@ var socket = null;
 function receiveMessage(message)
 {
     // The message text is a json string containing data
-    var data = JSON.parse(message.data)
+    var data = JSON.parse(message.data);
     $("#chat-text").append("<li>"
         + "<span class='radius secondary label'>" + data['user'] + "</span> "
         + data['text'] + " "

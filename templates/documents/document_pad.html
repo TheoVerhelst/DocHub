@@ -1,4 +1,6 @@
 {% extends "skel.html" %}
+{% load pipeline %}
+
 {% block title %}Éditer {{document.name}}{% endblock %}
 {% block content %}
 <div class="row">
@@ -11,7 +13,7 @@
           Édition
         </a>
       </li>
-      <li class="tab-title">
+      <li class="tab-title" id="preview-tab-link">
         <a href="#preview-tab" >
           <i class="fi-eye"></i>
           Aperçu
@@ -59,3 +61,5 @@
   </div>
 </div>
 {% endblock %}
+
+{% javascript 'pad' %}

@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load custommardown %}
 {% load activity_tags %}
+{% load pipeline %}
 
 {% block title %}{{ group.name }} | DocHub {% endblock %}
 
@@ -53,6 +54,8 @@
   </div>
 {% endwith %}
 {% endblock %}
+
+{% javascript 'chat' %}
 
 {% block script %}
 <script type="text/javascript">

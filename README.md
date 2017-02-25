@@ -33,7 +33,7 @@ The files in the repo on your host machine are shared and available from within 
 Make sure you have `python3`.
 
     # Ubuntu
-    sudo apt-get install graphicsmagick unoconv python3-dev nodejs ruby npm libtiff5-dev libjpeg62-turbo-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python-tk python3-pip
+    sudo apt-get install graphicsmagick unoconv python3-dev nodejs ruby npm libtiff5-dev libjpeg62-turbo-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python-tk python3-pip libffi-dev
     # Fedora
     sudo dnf install GraphicsMagick unoconv python-devel nodejs ruby npm
     # Arch linux
