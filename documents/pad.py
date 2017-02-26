@@ -10,9 +10,9 @@ from django import get_object_or_404
 
 
 class Cursor:
-	def __init__(self, col=0, row=0):
-		self.col = col
-		self.row = row
+	def __init__(self):
+		self.col = -1
+		self.row = -1
 
 
 class Pad:
@@ -26,12 +26,40 @@ class Pad:
 		self.cursors = {}
 		self.new_cursor_id = -1
 		
+		self.content_as_string = "" #Whole content concatenated into one string
+		self.content_was_modified = True #Was the content modified since the last concat ?
+		
+	def _char_to_row_col(self, char_count):
+		"""
+		Translates a character count (from file beginning) to row, col position
+		"""
+		row, col = 0, 0
+		while char_count > 0:
+			line_cols = len(self.lines[row])
+			
+			if char_count < line_cols or row == len(self.lines) - 1:
+				col = char_count
+				char_count = 0
+			else:
+				row += 1
+				col = 0
+				char_count -= line_cols
+		
+		return row, col
+		
 	def _get_cursor_from_id(self, cursor_id):
 		return self.cursors[cursor_id]
 		
 	def _get_all_cursors(self):
 		for cursor in self.cursors.values():
 			yield cursor
+			
+	def _cursor_can_select_row(self, row_number, cursor_ref):
+		for cur in self._get_all_cursors():
+			#If there is another cursor on 'row_number'
+			if cur.row == row_number and cur != cursor_ref:
+				return False
+		return True
 		
 	def cursor_create(self):
 		"""
@@ -41,48 +69,47 @@ class Pad:
 		self.cursors[self.new_cursor_id] = Cursor()
 		return self.new_cursor_id
 		
-	def _find_synced_row(self, row, lines_context):
+		
+	def cursor_seek(self, cursor_id, char_position, char_context, context_position):
 		"""
-		Parses all lines before and after 'row' and returns 'true_row'.
-		'true_row' is the row
+		Positions cursor identified by cursor_id at position 'char_position'
+		If char_context do not surround char_position, tries to reposition cursor by finding the closest position where they do.
 		"""
-		offset = 0
-		for i in range(1, len(self.lines)*2):			
-			offset = i//2 * (-1 if i%2==0 else 1)
-			true_row = row + offset 
-			
-			if self._is_synced(true_row, lines_context):
-				return true_row
+		text = repr(self) #Whole text as single string
 		
-		return None
+		#If char position is not valid, re-sync client
+		if char_position < 0 or char_position >= len(text) or char_position < context_position:
+			raise ValueError #CONTENT MUST BE SENT TO CLIENT
 		
-	def _is_synced(self, row, lines_context):
-		line_count = len(self.lines)
+		#Find next and previous closest positions of center of char_context
+		context_left_span = context_position
+		context_right_span = len(char_context) - context_position
 		
-		if row < 0 or row >= line_count:
-			return False
+		next_closest_position = text.find(char_context, char_position - context_left_span)
+		prev_closest_position = text.rfind(char_context, 0, char_position + context_right_span)
 		
-		for i in range(-1, 2):
-			if (row+i >= 0 and row+i < line_count) and lines_context[i+1] != self.lines[row+i]:
-				return False
+		#If context could not be found, re-sync client
+		if next_closest_position == -1 and prev_closest_position == -1:
+			raise ValueError #CONTENT MUST BE SENT TO CLIENT
 		
-		return True
-		
-		
-	def cursor_seek(self, cursor_id, row, col, lines_context):
-		"""
-		Positions cursor identified by cursor_id at index 'col' of row 'row'
-		"""
-		true_row = self._find_synced_row(row, lines_context)
-		
-		if not (true_row is None):
-			cursor = self._get_cursor_from_id(cursor_id)
-			cursor.row = true_row
-			if col > len(self.lines[true_row]) or col < 0:
-				raise ValueError
-			cursor.col = col
+		#Choose best position
+		true_position = 0
+		distance_to_next = (next_closest_position + context_left_span) - char_position
+		distance_to_prev = char_position - (prev_closest_position + context_left_span)
+		if prev_closest_position == -1 or distance_to_next < distance_to_prev:
+			true_position = next_closest_position + context_left_span
 		else:
-			raise ValueError
+			true_position = prev_closest_position + context_left_span
+		print("tp", true_position)
+		cursor = self._get_cursor_from_id(cursor_id)
+		row, col = self._char_to_row_col(true_position)
+		
+		if self._cursor_can_select_row(row, cursor):
+			cursor.row, cursor.col = row, col
+			return true_position
+		else:
+			raise ValueError #REFUSE SELECTION BY CLIENT
+		
 		
 	def cursor_delete(self, cursor_id):
 		"""
@@ -98,6 +125,7 @@ class Pad:
 		pad_line = self.lines[cursor.row]
 		
 		#Insert content into line
+		self.content_was_modified = True
 		self.lines[cursor.row] = pad_line[0:cursor.col] + content + pad_line[cursor.col:]
 				
 		#Check if line needs to be splitted (new lines)
@@ -129,18 +157,12 @@ class Pad:
 				other_cursor.row += furtherCursorRowOffset
 				other_cursor.col += furtherCursorColOffset
 	
-	def _can_backspace(self, row_number, cursor_ref):
-		for cur in self._get_all_cursors():
-			#If there is another cursor on 'row_number'
-			if cur.row == row_number and cur != cursor_ref:
-				return False
-		return True
-	
 	
 	def remove(self, cursor_id, backspace_count):
 		"""
 		Removes backspace_count characters from the cursor identified by cursor_id
 		"""
+		self.content_was_modified = True
 		cursor = self._get_cursor_from_id(cursor_id)
 		
 		current_row = cursor.row
@@ -152,27 +174,31 @@ class Pad:
 		backspace_stop = False
 		
 		while not backspace_stop:
-			#As long as we're allowed to deleted
-			if self._can_backspace(del_start_row, cursor):
-				
-				#If we ran out of backspaces
-				if del_start_col > backspace_remaining:
-					backspace_stop = True
-					del_start_col = del_start_col - backspace_remaining
-					backspace_remaining = 0
+			#If we ran out of backspaces
+			if del_start_col > backspace_remaining:
+				backspace_stop = True
+				del_start_col = del_start_col - backspace_remaining
+				backspace_remaining = 0
+		
+			#If we ran out of characters
+			elif del_start_row == 0:
+				backspace_stop = True
+				backspace_remaining -= del_start_col
+				del_start_col = 0
 			
-				#If we ran out of characters
-				elif del_start_row == 0:
-					backspace_stop = True
-					backspace_remaining -= del_start_col
-					del_start_col = 0
-				
-				#If we must continue
-				else:
-					backspace_remaining -= del_start_col
+			#If we must continue
+			else:
+				backspace_remaining -= del_start_col
+				#If cursor is allowed to select previous line
+				if self._cursor_can_select_row(del_start_row-1, cursor):
 					del_start_row -= 1
 					del_start_col = len(self.lines[del_start_row])
+				#Otherwise stop there
+				else:
+					del_start_col = 0
+					backspace_stop = True
 		
+		#Row and column offsets after the deletion
 		del_rows = current_row - del_start_row
 		del_cols = len(self.lines[del_start_row]) - current_col
 		
@@ -190,12 +216,11 @@ class Pad:
 		for i in range(1, del_rows+1):
 			del self.lines[del_start_row + i]
 		
-	def printCursors(self):
-		for id, cur in self.cursors.items():
-			print(id, cur.row, cur.col)
-
 	def __repr__(self):
-		return ''.join(str(l) for l in self.lines)
+		if self.content_was_modified:
+			self.content_was_modified = False
+			self.content_as_string = ''.join(self.lines)
+		return self.content_as_string
 		
 	def file_flush(self):		
 		tmpfile = tempfile.NamedTemporaryFile("w+")
