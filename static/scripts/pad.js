@@ -50,10 +50,10 @@ function onInput(event) {
     message.type = "edit";
     socket.send(JSON.stringify(message));
 
-    selection = padTextArea.getSelection();
+    userSelection = padTextArea.getSelection();
     // Put back the previous text in the textarea, only the server can change it
     padTextArea.val(previousTextContent);
-    padTextArea.setSelection(selection.start, selection.end);
+    padTextArea.setSelection(userSelection.start, userSelection.end);
 }
 
 function sendCursorPosition() {
@@ -89,6 +89,11 @@ function arrowPressed(event) {
 }
 
 function receiveMessage(message) {
+    userSelection = padTextArea.getSelection();
+    var data = JSON.parse(message.data);
+    padTextArea.deleteText(data.position, data.deletion);
+    padTextArea.insertText(data.insertion, data.position);
+    padTextArea.setSelection(userSelection.start, userSelection.end);
 }
 
 function initPad() {
