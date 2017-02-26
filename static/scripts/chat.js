@@ -2,7 +2,9 @@ var socket = null;
 
 function scrollDown(identifier)
 {
-  $(identifier).animate({ scrollTop: $(identifier).prop("scrollHeight")}, 1000);
+  $(identifier).animate({
+      scrollTop: $(identifier)[0].scrollHeight - $(identifier)[0].clientHeight
+  }, 300);
 }
 
 function receiveMessage(message)
@@ -36,14 +38,18 @@ function initChat()
     // Call onopen directly if socket is already open
     if(socket.readyState == WebSocket.OPEN)
         socket.onopen();
+
     scrollDown("#chat-text");
 }
 
 $(document).ready(initChat);
 
 $("#chat-button").click(sendMessage);
+
+// Send a message when enter key is pressed in the chat input
 $("#chat-input").keypress(function(e)
 {
-  if (e.which == 13)
+  var enterKeyCode = 13
+  if (e.which == enterKeyCode)
       sendMessage(e);
 });
