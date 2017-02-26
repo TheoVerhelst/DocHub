@@ -1,5 +1,10 @@
 var socket = null;
 
+function scrollDown(identifier)
+{
+  $(identifier).animate({ scrollTop: $(identifier).prop("scrollHeight")}, 1000);
+}
+
 function receiveMessage(message)
 {
     // The message text is a json string containing data
@@ -9,6 +14,7 @@ function receiveMessage(message)
         + data['text'] + " "
         + "<small class='right'>" + data['created'] + "</small>"
         + "</li>");
+    scrollDown("#chat-text");
 }
 
 function sendMessage(clickEvent)
