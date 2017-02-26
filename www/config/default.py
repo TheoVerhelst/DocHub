@@ -142,6 +142,7 @@ PIPELINE = {
         },
         'pad': {
             'source_filenames': (
+                '3party/diff-match-patch/diff-match-patch.js',
                 'scripts/pad.js',
             ),
             'output_filename': 'pad.js',

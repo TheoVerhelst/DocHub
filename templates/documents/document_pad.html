@@ -37,6 +37,7 @@
                   {% endif %}
                   {{field}}
               {% endfor %}
+              <input type="hidden" id="document-pk" value="{{ document.pk }}" />
               <p class="text-right"><input type="submit" class="button success radius" value="Envoyer" /></p>
           </form>
         </div>
