@@ -135,7 +135,8 @@ PIPELINE = {
         'main': {
             'source_filenames': (
                 'scripts/viewer.js',
-                'scripts/*.jsx',
+                'scripts/group.jsx',
+                'scripts/tree.jsx',
             ),
             'output_filename': 'main.js',
         },
