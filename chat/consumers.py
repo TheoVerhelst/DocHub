@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import channels
 import catalog.models
 from django.shortcuts import get_object_or_404
+from django.utils import html
 from channels.auth import channel_session_user_from_http, channel_session_user
 from .models import Message
 
@@ -38,12 +39,14 @@ def ws_chat_receive(message):
 
     Connected to "websocket.receive".
     """
-    # Stick the message onto the processing queue
-    channels.Channel("chat.receive").send({
-        'group': message.channel_session['group'],
-        'text': message['text'],
-        'user': message.user
-    })
+    # Refuse empty message
+    if len(message['text']) > 0:
+        # Stick the message onto the processing queue
+        channels.Channel("chat.receive").send({
+            'group': message.channel_session['group'],
+            'text': message['text'],
+            'user': message.user
+        })
 
 @channel_session_user
 def ws_chat_disconnect(message):
@@ -69,5 +72,9 @@ def chat_receive(message):
         group=get_object_or_404(catalog.models.Group, slug=group_slug),
         text=message.content['text']
     )
+    # Escape the text before sending it, so that no XSS injection is possible
+    # But we don't need to escape it before saving in database, since Django
+    # escapes everything
+    chatMessage.text = html.escape(chatMessage.text)
     # Send the message to the group (i.e. all users connected on the group chat)
     channels.Group("chat" + group_slug).send({'text': chatMessage.dump_json()})

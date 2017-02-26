@@ -19,8 +19,12 @@ function receiveMessage(message)
 
 function sendMessage(clickEvent)
 {
-    socket.send($("#chat-input").val());
-    $("#chat-input").val('');
+    var message = $("#chat-input").val();
+    if(!(message === ""))
+    {
+        socket.send(message);
+        $("#chat-input").val('');
+    }
 }
 
 function initChat()
@@ -32,6 +36,7 @@ function initChat()
     // Call onopen directly if socket is already open
     if(socket.readyState == WebSocket.OPEN)
         socket.onopen();
+    scrollDown("#chat-text");
 }
 
 $(document).ready(initChat);
