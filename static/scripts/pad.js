@@ -1,25 +1,8 @@
 (function() {
 
-// Function to get the cursor position in an input element
-(function ($, undefined) {
-    $.fn.getCursorPosition = function() {
-        var element = $(this).get(0);
-        var position = 0;
-        if('selectionStart' in element) {
-            position = element.selectionStart;
-        } else if('selection' in document) {
-            element.focus();
-            var Selection = document.selection.createRange();
-            var SelectionLength = document.selection.createRange().text.length;
-            Selection.moveStart('character', -element.value.length);
-            pos = Selection.text.length - SelectionLength;
-        }
-        return position;
-    }
-})(jQuery);
-
 var dmp = new diff_match_patch();
 
+// Returns which insertion and deletion has been made between two strings
 function computeEdition(oldString, newString)
 {
     // diff-match-patch configuration
@@ -50,40 +33,80 @@ function computeEdition(oldString, newString)
     }
 }
 
+// Compute the markdown preview of the pad
 function makePreview(event) {
     var markdown_text = $("#id_text").val()
     $("#preview-text").html(markdown.Markdown.toHTML(markdown_text));
 }
 
 var socket = null;
+var padTextArea = $("#id_text");
 
-var previousTextContent = $("#id_text").val()
+var previousTextContent = padTextArea.val()
 
 function onInput(event) {
-    var newTextContent = $("#id_text").val()
-    var edition = computeEdition(previousTextContent, newTextContent);
-    console.log(edition);
-    previousTextContent = newTextContent;
-    //socket.send(JSON.stringify(edition));
+    var newTextContent = padTextArea.val()
+    var message = computeEdition(previousTextContent, newTextContent);
+    message.type = "edit";
+    socket.send(JSON.stringify(message));
+
+    selection = padTextArea.getSelection();
+    // Put back the previous text in the textarea, only the server can change it
+    padTextArea.val(previousTextContent);
+    padTextArea.setSelection(selection.start, selection.end);
+}
+
+function sendCursorPosition() {
+    // Timeout because event is fired before new cursor position being effective
+    setTimeout(function()
+    {
+        socket.send(JSON.stringify({
+            type: "seek",
+            position: padTextArea.getSelection().end
+        }));
+    }, 50);
+}
+
+function focusOut(event) {
+    socket.send(JSON.stringify({
+        type: "focus-out"
+    }));
+}
+
+function arrowPressed(event) {
+    var moveKeys = [
+      40,// down
+      39,// right
+      38,// up
+      37,// left
+      36,// home
+      35,// end
+      34,// pageDown
+      33 // pageUp
+    ]
+    if(moveKeys.indexOf(event.which) > -1)
+        sendCursorPosition();
 }
 
 function receiveMessage(message) {
 }
 
 function initPad() {
+    // Socket connection
     socket = new WebSocket("ws://" + window.location.host + "/pad/" + $("#document-pk").val() + "/");
-
     socket.onmessage = receiveMessage;
-
     // Call onopen directly if socket is already open
     if(socket.readyState == WebSocket.OPEN)
         socket.onopen();
 
-    makePreview({});
+    //Event bindings
     $("#preview-tab-link").click(makePreview);
+    padTextArea.on("input", onInput);
+    padTextArea.click(sendCursorPosition);
+    padTextArea.focusout(focusOut);
+    padTextArea.keydown(arrowPressed);
 
-    $("#id_text").on('input', onInput);
-
+    makePreview({});
 }
 
 $(document).ready(initPad);
