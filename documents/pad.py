@@ -7,7 +7,17 @@ import tempfile
 
 from .models import Document
 from django import get_object_or_404
+from django.core.exceptions import PermissionDenied
 
+#Exception used when a cursor selection is not allowed
+#  handling should include resetting the client's cursor to its previous position
+class PadSelectionDenied(Exception):
+	pass
+
+#Exception used when a synchronization problem is detected
+# handling should include re-submitting the whole pad content to the client
+class PadOutOfSync(Exception):
+	pass
 
 class Cursor:
 	def __init__(self):
@@ -79,7 +89,7 @@ class Pad:
 		
 		#If char position is not valid, re-sync client
 		if char_position < 0 or char_position >= len(text) or char_position < context_position:
-			raise ValueError #CONTENT MUST BE SENT TO CLIENT
+			raise PadOutOfSync #CONTENT MUST BE SENT TO CLIENT
 		
 		#Find next and previous closest positions of center of char_context
 		context_left_span = context_position
@@ -90,7 +100,7 @@ class Pad:
 		
 		#If context could not be found, re-sync client
 		if next_closest_position == -1 and prev_closest_position == -1:
-			raise ValueError #CONTENT MUST BE SENT TO CLIENT
+			raise PadOutOfSync #CONTENT MUST BE SENT TO CLIENT
 		
 		#Choose best position
 		true_position = 0
@@ -108,7 +118,7 @@ class Pad:
 			cursor.row, cursor.col = row, col
 			return true_position
 		else:
-			raise ValueError #REFUSE SELECTION BY CLIENT
+			raise PadSelectionDenied #REFUSE SELECTION BY CLIENT
 		
 		
 	def cursor_delete(self, cursor_id):
