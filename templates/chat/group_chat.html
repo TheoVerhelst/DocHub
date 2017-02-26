@@ -10,7 +10,7 @@
         <ul class="no-bullet" id="chat-text">
           {% for message in chat_messages %}
             <li>
-              <span class='radius secondary label'>{{ message.user.first_name }}</span>
+              <span class='radius secondary label'>{{ message.user.first_name }} {{ message.user.last_name }}</span>
               {{ message.text }}
               <small class='right'>{{ message.created|date:"j/n H:i" }}</small>
             </li>
