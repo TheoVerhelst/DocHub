@@ -207,7 +207,7 @@ def document_reupload(request, pk):
     else:
         if document.is_pad():
             template_name = 'documents/document_pad.html'
-            form = PadForm(initial={"text": document.original.read().decode("utf-8")})
+            form = PadForm()
         else:
             form = ReUploadForm()
 

@@ -42,7 +42,8 @@ function makePreview(event) {
 var socket = null;
 var padTextArea = $("#id_text");
 
-var previousTextContent = padTextArea.val()
+var previousTextContent = padTextArea.val();
+var previousSelection = {start: 0, end:  0};
 
 function onInput(event) {
     var newTextContent = padTextArea.val()
@@ -56,14 +57,22 @@ function onInput(event) {
     padTextArea.setSelection(userSelection.start, userSelection.end);
 }
 
-function sendCursorPosition() {
+function seek() {
     // Timeout because event is fired before new cursor position being effective
     setTimeout(function()
     {
+        var contextWidth = 10;
+        var position = padTextArea.getSelection().end,
+            context = padTextArea.val().substring(position - contextWidth, position + contextWidth),
+            context_position = Math.min(position, contextWidth);
+
         socket.send(JSON.stringify({
             type: "seek",
-            position: padTextArea.getSelection().end
+            position: position,
+            context: context,
+            context_position: context_position
         }));
+        padTextArea.setSelection(previousSelection.start, previousSelection.end);
     }, 50);
 }
 
@@ -85,18 +94,42 @@ function arrowPressed(event) {
       33 // pageUp
     ]
     if(moveKeys.indexOf(event.which) > -1)
-        sendCursorPosition();
+        seek();
 }
 
 function receiveMessage(message) {
-    userSelection = padTextArea.getSelection();
     var data = JSON.parse(message.data);
-    padTextArea.deleteText(data.position, data.deletion);
-    padTextArea.insertText(data.insertion, data.position);
-    padTextArea.setSelection(userSelection.start, userSelection.end);
+
+    if(data["type"] == "sync")
+    {
+        padTextArea.val(data["content"]);
+        previousSelection.start = 0;
+    }
+    else if(data["type"] == "seek")
+    {
+        padTextArea.setSelection(data["position"]);
+        previousSelection.start = data["position"];
+    }
+    else if(data["type"] == "edit")
+    {
+        padTextArea.deleteText(data["position"], data["deletion"]);
+    }
+    else if(data["type"] == "error")
+    {
+        // Selection refused by server
+        if(data["value"] == "seek")
+        {
+            // Put back original selection
+            padTextArea.setSelection(userSelection.start);
+            previousSelection.start = data["position"];
+        }
+    }
+    previousSelection.start = previousSelection.end;
+    padTextArea.setSelection(previousSelection.start, previousSelection.end);
 }
 
 function initPad() {
+/*
     // Socket connection
     socket = new WebSocket("ws://" + window.location.host + "/pad/" + $("#document-pk").val() + "/");
     socket.onmessage = receiveMessage;
@@ -105,12 +138,12 @@ function initPad() {
         socket.onopen();
 
     //Event bindings
-    $("#preview-tab-link").click(makePreview);
     padTextArea.on("input", onInput);
-    padTextArea.click(sendCursorPosition);
+    padTextArea.click(seek);
     padTextArea.focusout(focusOut);
     padTextArea.keydown(arrowPressed);
-
+*/
+    $("#preview-tab-link").click(makePreview);
     makePreview({});
 }
 

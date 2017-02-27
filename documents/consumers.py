@@ -6,13 +6,22 @@ import channels
 from .models import Document
 from django.shortcuts import get_object_or_404
 from channels.auth import channel_session_user_from_http, channel_session_user
+from . import pad as pad_ns
 
-def get_pad_from_message(message):
-    """Returns the channel group to which this message belongs."""
-    if hasattr(message, channel_session):
-        return channels.Group("pad" + message.channel_session['document'])
-    elif hasattr(message, content):
-        return channels.Group("pad" + message.content['document'])
+def get_pad_group(document):
+    """Returns the channel group to which this document belongs."""
+    return channels.Group("pad" + document)
+
+def get_user_group(user):
+    return channels.Group("pad_user_" + user.netid)
+
+
+def get_pad(document_pk):
+    group = channels.Group("pad" + str(document_pk))
+    if not hasattr(group.channel_layer, "pads"):
+        group.channel_layer.pads = {}
+    pads = group.channel_layer.pads
+    return pads.setdefault(document_pk, pad_ns.Pad(document_pk))
 
 # Websockets
 
@@ -27,7 +36,14 @@ def ws_pad_connect(message, document_pk):
         # Reply with an ACK
         message.reply_channel.send({'accept': True})
         # Add the user to the pad
-        get_pad_from_message(message).add(message.reply_channel)
+        get_pad_group(document_pk).add(message.reply_channel)
+        get_user_group(message.user).add(message.reply_channel)
+
+        message.reply_channel.send({'text': json.dumps({
+            'type': 'sync',
+            'content': repr(get_pad(document_pk))
+        })})
+
 
 @channel_session_user
 def ws_pad_receive(message):
@@ -54,8 +70,9 @@ def ws_pad_disconnect(message):
 
     Connected to "websocket.disconnect".
     """
-    get_pad_from_message(message).discard(message.reply_channel)
-    # DISCONNECT IN PAD
+    get_pad_group(message.channel_session['document']).discard(message.reply_channel)
+    get_user_group(message.user).discard(message.reply_channel)
+    get_pad(message.channel_session['document']).cursor_delete(message.user.netid)
 
 # Pad
 
@@ -63,17 +80,48 @@ def pad_receive(message):
     """
     Connected to "pad.receive".
     """
+    cursor_id = message['user'].netid
+    pad = get_pad(message['document'])
 
-    if message_data['type'] == "seek":
-        # CONNECT IN PAD
-        pass
+    if message.content['type'] == "seek":
+        try:
+            true_position = pad.cursor_seek(cursor_id,
+                message.content['position'],
+                message.content['context'],
+                message.content['context_position'])
 
-    elif message_data['type'] == "edit":
+
+            get_user_group(message['user']).send({'text': json.dumps({
+                  'type' : "seek",
+                  'position' : true_position
+            })})
+        except pad_ns.PadSelectionDenied:
+            get_user_group(message['user']).send({'text': json.dumps({
+                'type' : "error",
+                'value' : "seek"
+            })})
+        except pad_ns.PadOutOfSync:
+            get_user_group(message['user']).send({'text': json.dumps({
+                'type': 'sync',
+                'content': repr(pad)
+            })})
+
+    elif message.content['type'] == "edit":
         # Send the message to the group (i.e. all users connected to the pad)
-        # EDIT IN PAD
-        get_pad_from_message(message).send({'text': json.dumps({
+        deletion_count = message.content['deletion']
+        if deletion_count > 0:
+            deletion_count = pad.remove(cursor_id, deletion_count)
+
+        inserted_string = message.content['insertion']
+        if len(inserted_string) > 0:
+            pad.insert(cursor_id, inserted_string)
+
+        get_pad_group(message['document']).send({'text': json.dumps({
+            'type' : "edit",
+            'position' : pad.get_cursor_position(cursor_id),
+            'deletion' : deletion_count,
+            'insertion' : inserted_string
         })})
 
-    elif message_data['type'] == "focus_out":
-        pass
-        # DISCONNECT IN PAD
+    elif message.content['type'] == "focus_out":
+        pad.cursor_delete(cursor_id)
