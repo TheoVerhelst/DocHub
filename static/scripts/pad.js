@@ -69,7 +69,7 @@ function sendCursorPosition() {
 
 function focusOut(event) {
     socket.send(JSON.stringify({
-        type: "focus-out"
+        type: "focus_out"
     }));
 }
 
