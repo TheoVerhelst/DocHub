@@ -106,6 +106,9 @@ def pad_receive(message):
             })})
 
     elif message.content['type'] == "edit":
+        # We need the old cursor position, in order to send correct patch to
+        # the connected users
+        old_position = pad.get_cursor_position(cursor_id)
         # Send the message to the group (i.e. all users connected to the pad)
         deletion_count = message.content['deletion']
         if deletion_count > 0:
@@ -117,7 +120,7 @@ def pad_receive(message):
 
         get_pad_group(message['document']).send({'text': json.dumps({
             'type' : "edit",
-            'position' : pad.get_cursor_position(cursor_id),
+            'position' : old_position,
             'deletion' : deletion_count,
             'insertion' : inserted_string
         })})
