@@ -42,44 +42,66 @@ function makePreview(event) {
 var socket = null;
 var padTextArea = $("#id_text");
 
-var previousTextContent = padTextArea.val();
-var previousSelection = {start: 0, end:  0};
+var serverTextContent = padTextArea.val();
+var serverPosition = 0;
+var serverFocusState = false;
+
+function resetFocus() {
+    // We have to unbind handlers, because handlers should be fired by user
+    // input only, not programmatically (and resetFocus are called
+    // on server response, not on user input).
+    unbindEventHandlers();
+    if(serverFocusState)
+        padTextArea.focus();
+    else
+        padTextArea.blur();
+    bindEventHandlers();
+}
+
+function resetSelection() {
+    unbindEventHandlers();
+    padTextArea.setSelection(serverPosition, serverPosition);
+    bindEventHandlers();
+}
 
 function onInput(event) {
     var newTextContent = padTextArea.val()
-    var message = computeEdition(previousTextContent, newTextContent);
+    var message = computeEdition(serverTextContent, newTextContent);
     message.type = "edit";
     socket.send(JSON.stringify(message));
 
-    userSelection = padTextArea.getSelection();
-    // Put back the previous text in the textarea, only the server can change it
-    padTextArea.val(previousTextContent);
-    padTextArea.setSelection(userSelection.start, userSelection.end);
+    // We put back the server text in the textarea, only the server can change the textarea
+    padTextArea.val(serverTextContent);
+    // Bu we let the cursor move as the user type
+    serverPosition = padTextArea.getSelection().end;
 }
 
 function seek() {
     // Timeout because event is fired before new cursor position being effective
-    setTimeout(function()
-    {
-        var contextWidth = 10;
-        var position = padTextArea.getSelection().end,
-            context = padTextArea.val().substring(position - contextWidth, position + contextWidth),
-            context_position = Math.min(position, contextWidth);
+    setTimeout(function() {
+        var position = padTextArea.getSelection().end;
+        if(!serverFocusState || position != serverPosition.end) {
+            var contextWidth = 10;
+            var context = padTextArea.val().substring(position - contextWidth, position + contextWidth),
+                context_position = Math.min(position, contextWidth);
 
-        socket.send(JSON.stringify({
-            type: "seek",
-            position: position,
-            context: context,
-            context_position: context_position
-        }));
-        padTextArea.setSelection(previousSelection.start, previousSelection.end);
+            socket.send(JSON.stringify({
+                type: "seek",
+                position: position,
+                context: context,
+                context_position: context_position
+            }));
+        }
     }, 50);
 }
 
 function focusOut(event) {
-    socket.send(JSON.stringify({
-        type: "focus_out"
-    }));
+    if(serverFocusState) {
+        socket.send(JSON.stringify({
+            type: "focus_out"
+        }));
+    }
+    serverFocusState = false;
 }
 
 function arrowPressed(event) {
@@ -98,38 +120,58 @@ function arrowPressed(event) {
 }
 
 function receiveMessage(message) {
-    var data = JSON.parse(message.data);
+    var data = JSON.parse(message.data)
 
-    if(data["type"] == "sync")
-    {
-        padTextArea.val(data["content"]);
-        previousSelection.start = 0;
+    switch(data["type"]) {
+        case "sync":
+            padTextArea.val(data["content"]);
+            serverTextContent = data["content"];
+            serverPosition = 0;
+            serverFocusState = false;
+            break;
+
+        case "seek":
+            serverPosition = data["position"];
+            serverFocusState = true;
+            break;
+
+        case "edit":
+            if(data["deletion"] > 0)
+                padTextArea.deleteText(data["position"], data["deletion"]);
+            if(data["insertion"].length > 0)
+                padTextArea.insertText(data["insertion"], data["position"]);
+            serverTextContent = padTextArea.val();
+            break;
+
+        case "error":
+            // Selection refused by server
+            if(data["cause"] == "seek") {
+                // Put back original selection
+                serverPosition = data["position"];
+                serverFocusState = true;
+            }
+            break;
     }
-    else if(data["type"] == "seek")
-    {
-        padTextArea.setSelection(data["position"]);
-        previousSelection.start = data["position"];
-    }
-    else if(data["type"] == "edit")
-    {
-        padTextArea.deleteText(data["position"], data["deletion"]);
-    }
-    else if(data["type"] == "error")
-    {
-        // Selection refused by server
-        if(data["value"] == "seek")
-        {
-            // Put back original selection
-            padTextArea.setSelection(userSelection.start);
-            previousSelection.start = data["position"];
-        }
-    }
-    previousSelection.start = previousSelection.end;
-    padTextArea.setSelection(previousSelection.start, previousSelection.end);
+    resetSelection();
+    resetFocus();
+}
+
+function bindEventHandlers() {
+    padTextArea.on("input", onInput);
+    padTextArea.on("focus", seek);
+    padTextArea.on("blur", focusOut);
+    padTextArea.on("keydown", arrowPressed);
+}
+
+function unbindEventHandlers() {
+    padTextArea.off("input", onInput);
+    padTextArea.off("focus", seek);
+    padTextArea.off("blur", focusOut);
+    padTextArea.off("keydown", arrowPressed);
 }
 
 function initPad() {
-/*
+
     // Socket connection
     socket = new WebSocket("ws://" + window.location.host + "/pad/" + $("#document-pk").val() + "/");
     socket.onmessage = receiveMessage;
@@ -138,14 +180,12 @@ function initPad() {
         socket.onopen();
 
     //Event bindings
-    padTextArea.on("input", onInput);
-    padTextArea.click(seek);
-    padTextArea.focusout(focusOut);
-    padTextArea.keydown(arrowPressed);
-*/
+    bindEventHandlers();
+
     $("#preview-tab-link").click(makePreview);
     makePreview({});
 }
 
 $(document).ready(initPad);
+
 })();

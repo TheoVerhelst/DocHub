@@ -90,7 +90,6 @@ def pad_receive(message):
                 message.content['context'],
                 message.content['context_position'])
 
-
             get_user_group(message['user']).send({'text': json.dumps({
                   'type' : "seek",
                   'position' : true_position
@@ -98,7 +97,7 @@ def pad_receive(message):
         except pad_ns.PadSelectionDenied:
             get_user_group(message['user']).send({'text': json.dumps({
                 'type' : "error",
-                'value' : "seek"
+                'cause' : "seek"
             })})
         except pad_ns.PadOutOfSync:
             get_user_group(message['user']).send({'text': json.dumps({

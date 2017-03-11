@@ -95,10 +95,9 @@ class Pad:
         If char_context do not surround char_position, tries to reposition cursor by finding the closest position where they do.
         """
         text = repr(self) #Whole text as single string
-        print("SEEK", self)
 
         #If char position is not valid, re-sync client
-        if char_position < 0 or char_position >= len(text) or char_position < context_position:
+        if char_position < 0 or char_position > len(text) or char_position < context_position:
             raise PadOutOfSync #CONTENT MUST BE SENT TO CLIENT
 
         #Find next and previous closest positions of center of char_context
@@ -120,7 +119,7 @@ class Pad:
             true_position = next_closest_position + context_left_span
         else:
             true_position = prev_closest_position + context_left_span
-        print("tp", true_position)
+
         cursor = self._get_cursor_from_id(cursor_id)
         row, col = self._char_to_row_col(true_position)
 
