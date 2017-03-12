@@ -44,6 +44,7 @@ var padTextArea = $("#id_text");
 
 var serverTextContent = padTextArea.val();
 var serverPosition = 0;
+var requestedPosition = 0;
 var serverFocusState = false;
 
 function resetFocus() {
@@ -68,29 +69,38 @@ function onInput(event) {
     var newTextContent = padTextArea.val()
     var message = computeEdition(serverTextContent, newTextContent);
     message.type = "edit";
-    socket.send(JSON.stringify(message));
+    // It is possible to have empty edit, do not send message in that case
+    if(message.insertion.length > 0 || message.deletion > 0)
+    {
+        socket.send(JSON.stringify(message));
 
-    // We put back the server text in the textarea, only the server can change the textarea
-    padTextArea.val(serverTextContent);
-    // Bu we let the cursor move as the user type
-    serverPosition = padTextArea.getSelection().end;
+        // We put back the server text in the textarea, only the server can change the textarea
+        padTextArea.val(serverTextContent);
+        // Bu we let the cursor move as the user type
+        serverPosition = padTextArea.getSelection().end;
+    }
 }
 
 function seek() {
     // Timeout because event is fired before new cursor position being effective
     setTimeout(function() {
-        var position = padTextArea.getSelection().end;
-        if(!serverFocusState || position != serverPosition.end) {
-            var contextWidth = 10;
-            var context = padTextArea.val().substring(position - contextWidth, position + contextWidth),
-                context_position = Math.min(position, contextWidth);
+        newPosition = padTextArea.getSelection().end;
+        // This checks avoid asking two times for the same cursor position
+        if(newPosition != requestedPosition)
+        {
+            requestedPosition = newPosition;
+            if(!serverFocusState || requestedPosition != serverPosition) {
+                var contextWidth = 10;
+                var context = padTextArea.val().substring(requestedPosition - contextWidth, requestedPosition + contextWidth),
+                    context_position = Math.min(requestedPosition, contextWidth);
 
-            socket.send(JSON.stringify({
-                type: "seek",
-                position: position,
-                context: context,
-                context_position: context_position
-            }));
+                socket.send(JSON.stringify({
+                    type: "seek",
+                    position: requestedPosition,
+                    context: context,
+                    context_position: context_position
+                }));
+            }
         }
     }, 50);
 }
@@ -137,7 +147,7 @@ function receiveMessage(message) {
 
         case "edit":
             if(data["deletion"] > 0)
-                padTextArea.deleteText(data["position"], data["deletion"]);
+                padTextArea.deleteText(data["position"] - data["deletion"], data["position"]);
             if(data["insertion"].length > 0)
                 padTextArea.insertText(data["insertion"], data["position"]);
             serverTextContent = padTextArea.val();
@@ -159,6 +169,7 @@ function receiveMessage(message) {
 function bindEventHandlers() {
     padTextArea.on("input", onInput);
     padTextArea.on("focus", seek);
+    padTextArea.on("click", seek);
     padTextArea.on("blur", focusOut);
     padTextArea.on("keydown", arrowPressed);
 }
@@ -166,6 +177,7 @@ function bindEventHandlers() {
 function unbindEventHandlers() {
     padTextArea.off("input", onInput);
     padTextArea.off("focus", seek);
+    padTextArea.off("click", seek);
     padTextArea.off("blur", focusOut);
     padTextArea.off("keydown", arrowPressed);
 }
