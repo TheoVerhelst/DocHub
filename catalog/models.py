@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
 from mptt.models import MPTTModel, TreeForeignKey
+import actstream
 
 
 @python_2_unicode_compatible
@@ -27,7 +28,13 @@ class Category(MPTTModel):
 
 
 @python_2_unicode_compatible
-class Course(models.Model):
+class Group(models.Model):
+    GROUP_TYPES= (
+        ("C", "Cours"),
+        ("P", "Public"),
+        ("R", "Privé"),
+    )
+    type = models.CharField(max_length=1, choices=GROUP_TYPES, blank=False, default="P")
     name = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(unique=True, db_index=True)
     categories = models.ManyToManyField(Category)
@@ -35,15 +42,41 @@ class Course(models.Model):
     class Meta:
         ordering = ['slug']
 
+    def isCourse(self):
+        return self.type == "C"
+
+    def isPublic(self):
+        return self.type == "P"
+
+    def isPrivate(self):
+        return self.type == "R"
+
     def gehol_url(self):
-        slug = self.slug.replace('-', '').upper()
-        return "http://gehol.ulb.ac.be/gehol/Vue/HoraireCours.php?cours=%s" % (slug,)
+        if self.isCourse():
+            slug = self.slug.replace('-', '').upper()
+            return "http://gehol.ulb.ac.be/gehol/Vue/HoraireCours.php?cours=%s" % (slug,)
+        else:
+            return None
 
     def get_absolute_url(self):
-        return reverse('course_show', args=(self.slug, ))
+        return reverse('group_show', args=(self.slug, ))
 
     def __str__(self):
         return self.slug.upper()
 
     def fullname(self):
         return "{} ({})".format(self.name, self.slug.lower())
+
+    def get_stats(self):
+        threads = self.thread_set.all()
+        threads_messages_count = 0
+        for thread in threads:
+            threads_messages_count += thread.message_set.all().count()
+
+        return {
+            "threads_count" : threads.count(),
+            "threads_messages_count" : threads_messages_count,
+            "chat_messages_count" : self.chat_messages.all().count(),
+            "documents_count" : self.document_set.all().count(),
+            "followers_count" : len(actstream.models.followers(self))
+        }

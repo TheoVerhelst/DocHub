@@ -13,7 +13,14 @@
 </div>
 <div class="row">
   <div class="large-10 medium-12 columns">
+    <div class="row user-message-header">
+      <div class="large-6 columns">
+        <strong>{% if edit %}Editer{% else %}Répondre{% endif %}</strong>
+      </div>
+    </div>
+    <div class="row user-message-content">
       {% include "telepathy/message_form.html" %}
+    </div>
   </div>
 </div>
 

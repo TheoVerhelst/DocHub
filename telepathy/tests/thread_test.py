@@ -4,16 +4,16 @@ from __future__ import unicode_literals
 import pytest
 from telepathy.models import Thread
 from users.models import User
-from catalog.models import Course
+from catalog.models import Group
 import json
 
 pytestmark = pytest.mark.django_db
 
 
 def create_thread(name):
-    course = Course.objects.create(slug='AAA-000')
+    group = Group.objects.create(slug='AAA-000')
     user = User.objects.create_user(netid='test_user')
-    thread = Thread.objects.create(name=name, user=user, course=course)
+    thread = Thread.objects.create(name=name, user=user, group=group)
 
     return thread
 

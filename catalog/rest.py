@@ -2,22 +2,22 @@ from rest_framework import viewsets
 from rest_framework_extensions.mixins import DetailSerializerMixin
 
 from catalog.serializers import (
-    CourseSerializer,
-    ShortCourseSerializer,
+    GroupSerializer,
+    ShortGroupSerializer,
     CategorySerializer,
     ShortCategorySerializer
 )
-from catalog.models import Course, Category
+from catalog.models import Group, Category
 
 
-class CourseViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = Course.objects.prefetch_related(
+class GroupViewSet(DetailSerializerMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Group.objects.prefetch_related(
         "document_set",
         "document_set__user",
         "document_set__tags"
     )
-    serializer_class = ShortCourseSerializer
-    serializer_detail_class = CourseSerializer
+    serializer_class = ShortGroupSerializer
+    serializer_detail_class = GroupSerializer
 
     lookup_field = 'slug'
 

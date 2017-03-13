@@ -24,7 +24,7 @@
     </ul>
   </div>
   <br>
-  {% if category.course_set.all %}
+  {% if category.group_set.all %}
     <div class="large-6 medium-12 columns">
       <h3>Cours
         {% if follow_children %}
@@ -33,28 +33,28 @@
           </a>
         {% endif %}
       </h3>
-      <ul class="course-list">
-        {% with request.user.following_courses as user_followed_courses %}
-          {% for course in category.course_set.all %}
+      <ul class="group-list">
+        {% with request.user.following_groups as user_followed_groups %}
+          {% for group in category.group_set.all %}
           <li>
             <h6>
-              {% if course in user_followed_courses %}
-                <a href="{% url "leave_course" course.slug %}?next={% url "category_show" category.id %}"
-                   class="course-label radius success label toggle-follow"
+              {% if group in user_followed_groups %}
+                <a href="{% url "leave_group" group.slug %}?next={% url "category_show" category.id %}"
+                   class="group-label radius success label toggle-follow"
                    title="Se désabonner du cours">
-                  {{ course.slug }}
+                  {{ group.slug }}
                 </a>
               {% else %}
-                <a href="{% url "join_course" course.slug %}?next={% url "category_show" category.id %}"
-                   class="course-label secondary radius label toggle-follow"
+                <a href="{% url "join_group" group.slug %}?next={% url "category_show" category.id %}"
+                   class="group-label secondary radius label toggle-follow"
                    title="S'abonner au cours">
-                  {{ course.slug }}
+                  {{ group.slug }}
                 </a>
               {% endif %}
 
-              <a href="{% url 'course_show' course.slug %}">{{ course.name }}</a>
+              <a href="{% url 'group_show' group.slug %}">{{ group.name }}</a>
               
-              {% if course in user_followed_courses %}
+              {% if group in user_followed_groups %}
                 <small> (abonné)</small>
               {% endif %}
             </h6>

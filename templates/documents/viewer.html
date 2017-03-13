@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   var viewer_instance = viewer({
       len: {{ document.pages }},
       id: {{ document.id }},
-      parentid: '{{ document.course.id }}',
+      parentid: '{{ document.group.id }}',
       pages: [
       {% for page in document.page_set.all %}
         {

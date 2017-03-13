@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('edited', models.DateTimeField(auto_now=True, auto_now_add=True, db_index=True)),
                 ('placement', models.TextField(default=None, null=True)),
-                ('course', models.ForeignKey(to='catalog.Course')),
+                ('group', models.ForeignKey(to='catalog.Group')),
                 ('document', models.ForeignKey(to='documents.Document', null=True)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],

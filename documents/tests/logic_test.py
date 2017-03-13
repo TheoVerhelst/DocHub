@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from users.models import User
-from catalog.models import Course
+from catalog.models import Group
 from tags.models import Tag
 import pytest
 from documents import logic
@@ -17,28 +17,28 @@ def user():
 
 
 @pytest.fixture(scope='function')
-def course():
-    return Course.objects.create(slug="test-t-100")
+def group():
+    return Group.objects.create(slug="test-t-100")
 
 
-def test_add_file_to_course(user, course):
+def test_add_file_to_group(user, group):
     Tag.objects.create(name="tag one")
     tags = ["tag one", "tag two", Tag.objects.create(name="tag three")]
 
     file = StringIO("mybinarydocumentcontent")
     file.size = len("mybinarydocumentcontent")
 
-    doc = logic.add_file_to_course(
+    doc = logic.add_file_to_group(
         file,
         "My document",
         ".dll",
-        course,
+        group,
         tags,
         user
     )
 
     assert doc
-    assert doc in course.document_set.all()
+    assert doc in group.document_set.all()
     assert doc.name == "My document"
     assert doc.state == 'READY_TO_QUEUE'
     assert Tag.objects.count() == 3

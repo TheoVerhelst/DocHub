@@ -14,6 +14,8 @@ from www.config.default import *
 
 DEBUG = True
 
+ALLOWED_HOSTS = []
+
 INSTALLED_APPS += (
     'django_extensions',
     'kombu.transport.django',  # celery_broker

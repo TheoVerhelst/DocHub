@@ -16,7 +16,7 @@ class ViewController: UIViewController,UIWebViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let webUrl : NSURL = NSURL(string: "https://dochub.be")!
+        let webUrl : NSURL = NSURL(string: "http://dochub.ddns.net")!
         let webRequest : NSURLRequest = NSURLRequest(url: webUrl as URL)
         WebView.loadRequest(webRequest as URLRequest)        // Do any additional setup after loading the view, typically from a nib.
     }

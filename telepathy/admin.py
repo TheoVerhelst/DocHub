@@ -8,7 +8,7 @@ from .models import Message, Thread
 
 @admin.register(Thread)
 class ThreadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'course', 'user', 'created', 'document')
+    list_display = ('name', 'group', 'user', 'created', 'document')
     list_filter = ('created', 'edited')
 
 

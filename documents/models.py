@@ -25,7 +25,7 @@ class Document(models.Model):
     )
 
     name = models.CharField(max_length=255, verbose_name='Titre')
-    course = models.ForeignKey('catalog.Course', null=True, verbose_name='Cours')
+    group = models.ForeignKey('catalog.Group', null=True, verbose_name='Cours')
 
     description = models.TextField(blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='Utilisateur')
@@ -79,11 +79,11 @@ class Document(models.Model):
     def get_absolute_url(self):
         return reverse('document_show', args=(self.id, ))
 
-    def write_perm(self, user, moderated_courses):
+    def write_perm(self, user, moderated_groups):
         if user.id == self.user_id:
             return True
 
-        if self.course_id in moderated_courses:
+        if self.group_id in moderated_groups:
             return True
 
         return False

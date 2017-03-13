@@ -24,8 +24,11 @@ database:
 	@echo "Creating second user blabevue with password 'test'"
 	$(PY) manage.py createuser --netid=blabevue --password=test --first-name=Bertrand --last-name=Labevue
 
-	@echo "Loading an minimal course tree"
+	@echo "Loading an minimal group tree"
 	$(PY) manage.py loadtree --tree catalog/management/devtree.yaml
 
 	@echo "Creating some tags"
 	@echo "from tags.models import Tag; [Tag.objects.create(name=x) for x in ('syllabus', 'officiel', 'examen')]" | $(PY) manage.py shell > /dev/null
+	
+flush:
+	$(PY) manage.py flush

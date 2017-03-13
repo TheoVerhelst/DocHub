@@ -12,7 +12,7 @@ from django.conf import settings
 import actstream
 import users.identicon
 
-from catalog.models import Course
+from catalog.models import Group
 
 
 class CustomUserManager(UserManager):
@@ -69,7 +69,7 @@ class User(AbstractBaseUser):
     is_academic = models.BooleanField(default=False)
     is_representative = models.BooleanField(default=False)
 
-    moderated_courses = models.ManyToManyField('catalog.Course', blank=True)
+    moderated_groups = models.ManyToManyField('catalog.Group', blank=True)
 
     notify_on_response = models.BooleanField(default=True)
     notify_on_new_doc = models.BooleanField(default=True)
@@ -78,8 +78,8 @@ class User(AbstractBaseUser):
     notify_on_upload = True
 
     def __init__(self, *args, **kwargs):
-        self._following_courses = None
-        self._moderated_courses = None
+        self._following_groups = None
+        self._moderated_groups = None
         super(User, self).__init__(*args, **kwargs)
 
     @property
@@ -100,10 +100,10 @@ class User(AbstractBaseUser):
     def following(self):
         return actstream.models.following(self)
 
-    def following_courses(self):
-        if self._following_courses is None:
-            self._following_courses = actstream.models.following(self, Course)
-        return self._following_courses
+    def following_groups(self):
+        if self._following_groups is None:
+            self._following_groups = actstream.models.following(self, Group)
+        return self._following_groups
 
     def has_module_perms(self, *args, **kwargs):
         return True # TODO : is this a good idea ?
@@ -118,11 +118,11 @@ class User(AbstractBaseUser):
         if obj is None:
             return False
 
-        if self._moderated_courses is None:
-            ids = [course.id for course in self.moderated_courses.only('id')]
-            self._moderated_courses = ids
+        if self._moderated_groups is None:
+            ids = [group.id for group in self.moderated_groups.only('id')]
+            self._moderated_groups = ids
 
-        return obj.write_perm(self, self._moderated_courses)
+        return obj.write_perm(self, self._moderated_groups)
 
     def fullname(self):
         return self.name

@@ -53,6 +53,7 @@ INSTALLED_APPS += (
     'analytical',
     'pipeline',
     'django_js_reverse',
+    'channels',
 )
 
 # apps
@@ -64,6 +65,7 @@ INSTALLED_APPS += (
     'catalog',
     'tags',
     'notifications',
+    'chat',
 )
 
 # must be after everything
@@ -104,9 +106,12 @@ ACTSTREAM_SETTINGS = {
 
 JS_REVERSE_EXCLUDE_NAMESPACES = ['admin', 'djdt']
 
-PIWIK_DOMAIN_PATH = 'piwik.urlab.be'
-PIWIK_SITE_ID = '1'
-
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "ROUTING": "www.routing.channel_routing",
+    },
+}
 
 PIPELINE = {
     'COMPILERS': ('react.utils.pipeline.JSXCompiler',

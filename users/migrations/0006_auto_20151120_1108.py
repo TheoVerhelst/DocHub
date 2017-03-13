@@ -7,14 +7,14 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_user_moderated_courses'),
+        ('users', '0005_user_moderated_groups'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='user',
-            name='moderated_courses',
-            field=models.ManyToManyField(to='catalog.Course', blank=True),
+            name='moderated_groups',
+            field=models.ManyToManyField(to='catalog.Group', blank=True),
             preserve_default=True,
         ),
     ]

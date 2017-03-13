@@ -5,7 +5,7 @@ from django.conf.urls import url
 import telepathy.views
 
 urlpatterns = [
-    url(r"^put/(?P<course_slug>[^/]*)$", telepathy.views.new_thread, name="thread_put"),
+    url(r"^put/(?P<group_slug>[^/]*)$", telepathy.views.new_thread, name="thread_put"),
     url(r"^doc_put/(?P<document_id>[^/]*)$", telepathy.views.new_thread, name="document_thread_put"),
     url(r"^(?P<pk>[^/]*)/reply$", telepathy.views.reply_thread, name="thread_reply"),
     url(r"^(?P<pk>[^/]*)/$", telepathy.views.show_thread, name="thread_show"),

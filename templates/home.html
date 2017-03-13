@@ -13,10 +13,10 @@
       {% for action in stream %}
         {% include "feed_entry.html" %}
       {% empty %}
-        {% if request.user.following_courses|length > 0 %}
+        {% if request.user.following_groups|length > 0 %}
           <p>Il n'y a encore rien dans votre flux d'actualités, attendez un peu, ça arrivera&nbsp;!</p>
         {% else %}
-          <p>Il n'y a encore rien dans votre flux d'actualités, il faudrait peut-être <a href="{% url 'show_courses' %}">s’abonner à un cours</a> ?</p>
+          <p>Il n'y a encore rien dans votre flux d'actualités, il faudrait peut-être <a href="{% url 'show_all_groups' %}">s’abonner à un cours</a> ?</p>
           <p>En vous abonnant à un cours, il apparait dans le menu de gauche sur toutes les pages du site, et vous recevez une notification à chaque nouveau document ou sujet de discussion ajouté dans ce cours.</p>
         {% endif %}
         <span id="joy-flux"></span>

@@ -1,4 +1,4 @@
-from catalog.models import Course
+from catalog.models import Group
 import collections
 from django.contrib.contenttypes.models import ContentType
 from actstream.models import Follow
@@ -11,8 +11,8 @@ def distance(v1, v2):
 
 
 def get_users_following_dict():
-    course_type = ContentType.objects.get(app_label="catalog", model="course")
-    follows = Follow.objects.filter(content_type=course_type).only('user_id', 'object_id')
+    group_type = ContentType.objects.get(app_label="catalog", model="group")
+    follows = Follow.objects.filter(content_type=group_type).only('user_id', 'object_id')
 
     following_dict = collections.defaultdict(set)
     for follow in follows:
@@ -22,15 +22,15 @@ def get_users_following_dict():
 
 
 def suggest(target_user, K=15):
-    courses = Course.objects.only('id')
+    groups = Group.objects.only('id')
     users_following = get_users_following_dict()
 
     vectors = {}
     for user_id, following in users_following.items():
-        vectors[user_id] = [course.id in following for course in courses]
+        vectors[user_id] = [group.id in following for group in groups]
 
-    # If the users is not following any courses, he is not in 'vectors'
-    target_vector = vectors.get(target_user.id, [False] * len(courses))
+    # If the users is not following any groups, he is not in 'vectors'
+    target_vector = vectors.get(target_user.id, [False] * len(groups))
 
     distances = {user_id: distance(target_vector, vector) for user_id, vector in vectors.items()}
     non_null_distances = {user_id: distance for user_id, distance in distances.items() if distance > 0}
@@ -45,4 +45,4 @@ def suggest(target_user, K=15):
         differences = users_following[user_id] - target_set
         best_matches.update(differences)
 
-    return [(Course.objects.get(id=course_id), hits) for course_id, hits in best_matches.most_common()]
+    return [(Group.objects.get(id=group_id), hits) for group_id, hits in best_matches.most_common()]

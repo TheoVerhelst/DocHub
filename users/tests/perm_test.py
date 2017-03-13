@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pytest
 from users.models import User
-from catalog.models import Category, Course
+from catalog.models import Category, Group
 from documents.models import Document
 
 pytestmark = pytest.mark.django_db
@@ -14,10 +14,10 @@ def tree():
     root = Category.objects.create(name="ULB")
     science = Category.objects.create(name="science", parent=root)
 
-    swag = Course.objects.create(name="Optimization of algorithmical SWAG", slug="swag-h-042")
+    swag = Group.objects.create(name="Optimization of algorithmical SWAG", slug="swag-h-042")
     swag.categories.add(science)
 
-    yolo = Course.objects.create(name="Yolo as new life manager", slug="yolo-f-101")
+    yolo = Group.objects.create(name="Yolo as new life manager", slug="yolo-f-101")
     yolo.categories.add(science)
 
     return root
@@ -61,21 +61,21 @@ def test_owner(user):
 
 
 def test_moderator(user, other_user, tree):
-    course = Course.objects.last()
-    user.moderated_courses.add(course)
+    group = Group.objects.last()
+    user.moderated_groups.add(group)
 
-    doc = Document.objects.create(user=other_user, course=course)
+    doc = Document.objects.create(user=other_user, group=group)
     assert user.write_perm(doc)
 
 
 def test_bad_moderator(user, other_user, tree):
-    course = Course.objects.last()
-    other_course = Course.objects.first()
-    assert course.id != other_course.id
+    group = Group.objects.last()
+    other_group = Group.objects.first()
+    assert group.id != other_group.id
 
-    user.moderated_courses.add(course)
+    user.moderated_groups.add(group)
 
-    doc = Document.objects.create(user=other_user, course=other_course)
+    doc = Document.objects.create(user=other_user, group=other_group)
     assert not user.write_perm(doc)
 
 

@@ -20,21 +20,21 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Document
         fields = (
-            'id', 'name', 'url', 'course', 'description',
+            'id', 'name', 'url', 'group', 'description',
             'user', 'pages', 'date', 'views',
             'downloads', 'state', 'md5', 'tags', 'has_perm'
         )
 
         extra_kwargs = {
             'user': {'lookup_field': 'netid'},
-            'course': {'lookup_field': 'slug'},
+            'group': {'lookup_field': 'slug'},
         }
 
 
 class ShortDocumentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Document
-        fields = ('id', 'url', 'course')
+        fields = ('id', 'url', 'group')
 
 
 class PageSerializer(serializers.HyperlinkedModelSerializer):

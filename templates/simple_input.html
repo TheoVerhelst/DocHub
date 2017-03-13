@@ -1,15 +1,36 @@
+{% load form_helpers %}
+
 <div class="row collapse">
-  <div class="large-12 columns">
+  {% if show_label %}
+    <div class="small-12 medium-1 columns">
+      {% if field.help_text %}
+        <span data-tooltip aria-haspopup="true" class="has-tip" title="{{ field.help_text }}">
+      {% endif %}
+        <label for="{{ field.id_for_label }}" class="inline">{{ field.label }}:</label>
+      {% if field.help_text %}
+        </span>
+      {% endif %}
+    </div>
+    <div class="small-12 medium-11 columns">
+  {% else %}
+    <div class="small-12 columns">
+  {% endif %}
+  {% if field|fieldtype == "RadioSelect" %}
+    {% for radio in field %}
+      {{ radio.tag }}
+      <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+    {% endfor %}
+  {% else %}
     <label {% if field.errors %} class="error" {% endif %}>
       {{ field }}
     </label>
-    {% if field.errors %}
-      <small class="error">
-        {% for error in field.errors %}
-          {{error}}</br>
-        {% endfor %}
-      </small>
-    {% endif %}
-
+  {% endif %}
+  {% if field.errors %}
+    <small class="error">
+      {% for error in field.errors %}
+        {{error}}</br>
+      {% endfor %}
+    </small>
+  {% endif %}
   </div>
 </div>

@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='course',
+            model_name='group',
             name='description',
             field=models.TextField(default='', blank=True),
             preserve_default=True,

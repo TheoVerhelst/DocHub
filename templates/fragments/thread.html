@@ -10,8 +10,8 @@
     </h1>
     <h3>
     {% if thread.document == None %}
-      <a href="{% url 'course_show' thread.course.slug %}" class="light">
-        <i class="fi-arrow-left back-icon"></i>  {{thread.course.name}}
+      <a href="{% url 'group_show' thread.group.slug %}" class="light">
+        <i class="fi-arrow-left back-icon"></i>  {{thread.group.name}}
       </a>
     {% else %}
       <a

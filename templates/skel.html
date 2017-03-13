@@ -5,6 +5,7 @@
 <!doctype html>
 <html class="no-js" lang="en">
   <head>
+
     {% analytical_head_top %}
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,7 +20,7 @@
     {% endblock %}
 
     {% analytical_head_bottom %}
-  </head>
+ </head>
   <body>
     {% analytical_body_top %}
     <div class="sticky">
@@ -43,21 +44,40 @@
                 {% endwith %}
               </li>
               <li class="has-dropdown">
-                <a href="{% url 'show_courses' %}">Mes cours</a>
-                <ul class="dropdown" id="course-tree-menu">
-                  <li><a href="#">
-                    <i class="fi-loop spinning"></i> <span class="fading">Chargement</span>
-                  </a></li>
+                <a href="{% url 'show_my_groups' %}">Vos groupes</a>
+
+                {% regroup request.user.following_groups by type as group_list %}
+                <ul class="dropdown">
+                  {% for type in group_list %}
+                    <li class="has-dropdown">
+                      <a href="#">
+                        {% if type.grouper == 'C' %}
+                          Cours
+                        {% elif type.grouper == 'P' %}
+                          Public
+                        {% elif type.grouper == 'R' %}
+                          Privé
+                        {% else %}
+                          Autre
+                        {% endif %}
+                      </a>
+                      <ul class="dropdown">
+                        {% for group in type.list %}
+                          <li><a href="{% url 'group_show' group.slug %}">{{ group.name }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endfor %}
                 </ul>
+              </li>
+              <li>
+                  <a href="{% url 'show_all_groups' %}">Liste des groupes</a>
+              </li>
+              <li class="show-for-small-only">
+                <a href="{% url 'create_group' %}">Créer un groupe</a>
               </li>
             </ul>
             <ul class="right">
-              <li>
-                <a href="https://www.facebook.com/DocHub" id="facebook"><i class="fi-social-facebook"></i></a>
-              </li>
-              <li>
-                <a href="{% url "help" %}">Aide</a>
-              </li>
               <li class="has-dropdown">
                   <a href="#">
                     <i class="fi-torso"></i>&nbsp; {{request.user.name}}
@@ -71,6 +91,9 @@
                           <a href="/admin"><i class="fi-widget"></i>&nbsp; Admin</a>
                         </li>
                       {% endif %}
+                      <li>
+                        <a href="{% url "help" %}"><i class="fi-blind"></i>&nbsp; Aide</a>
+                      </li>
                       <li>
                         <a href="{% url 'logout' %}"><i class="fi-power"></i>&nbsp; Déconnexion</a>
                       </li>
@@ -90,25 +113,48 @@
                 <i class="fi-list-thumbnails"></i> Flux d'actualités
               </a>
             </li>
-            {% if request.user.following_courses|length == 0 %}
+            {% if request.user.following_groups|length == 0 %}
               <li>
-                <a href="{% url 'show_courses' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
+                <a href="{% url 'show_all_groups' %}" class="sidebar-button" id="joy-abonner">S'abonner à des cours
                 </a>
               </li>
             {% else %}
               <li>
-                <a href="{% url 'show_courses' %}" class="sidebar-button" id="joy-abonner"><i class="fi-book"></i> Mes cours</a>
+                <a href="{% url 'show_my_groups' %}" class="sidebar-button" id="joy-abonner"><i class="fi-page-filled"></i> Vos groupes</a>
               </li>
             {% endif %}
-            <ul class="course-bulletlist">
-              {% for course in request.user.following_courses %}
-                <li class="nav-link">
-                  <a href="{% url 'course_show' course.slug %}">
-                    <i class="fi-folder"></i> {{ course.name }}
-                  </a>
+
+            <li>
+              {% regroup request.user.following_groups by type as group_list %}
+              <ul class="group-bulletlist">
+                {% for type in group_list %}
+                  <li>
+                    &emsp;<i class="fi-arrow-right"></i>
+                    {% if type.grouper == 'C' %}
+                      Cours
+                    {% elif type.grouper == 'P' %}
+                      Public
+                    {% elif type.grouper == 'R' %}
+                      Privé
+                    {% else %}
+                      Autre
+                    {% endif %}
                   </li>
-              {% endfor %}
-            </ul>
+                  {% for group in type.list %}
+                    <li class="nav-link">
+                      <a href="{% url 'group_show' group.slug %}" class="sidebar-button"><i class="fi-page"></i> {{ group.name }}</a>
+                    </li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </li>
+
+            <li>
+                <a href="{% url 'show_all_groups' %}" class="sidebar-button"><i class="fi-page-multiple"></i> Liste des groupes</a>
+            </li>
+            <li>
+                <a href="{% url 'create_group' %}" class="sidebar-button"><i class="fi-plus"></i> Créer un groupe</a>
+            </li>
           </ul>
 
         </div>
@@ -121,13 +167,10 @@
     <footer class="text-center">
       <hr>
       <br>
-      <a href="mailto:nikita.marchant@ulb.ac.be">Contact us</a> -
-      Made with love at
-      <a href="http://urlab.be">
-        <img src="/static/images/urlab.png" style="height: 1em;">
-        UrLab
-      </a>
-      - Code on <a href="http://github.com/UrLab/beta402">GitHub</a>
+      <a href="https://www.facebook.com/DocHub" id="facebook"><i class="fi-social-facebook"></i></a> -
+      <a href="mailto:nikita.marchant@ulb.ac.be">Contact&nbsp;us</a> -
+      Made&nbsp;with&nbsp;<i class="fi-heart"></i>&nbsp;at&nbsp;<a href="http://urlab.be"><img src="/static/images/urlab.png" style="height: 1em;">&nbsp;UrLab</a>
+      - Code&nbsp;on&nbsp;<a href="http://github.com/UrLab/beta402">GitHub</a>
       - <a href="http://cerkinfo.be">
           <img style="height: 1.0em;" src="/static/images/ci.png">
         </a>
