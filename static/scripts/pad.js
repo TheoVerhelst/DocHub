@@ -44,7 +44,6 @@ var padTextArea = $("#id_text");
 
 var serverTextContent = padTextArea.val();
 var serverPosition = 0;
-var requestedPosition = 0;
 var serverFocusState = false;
 
 function resetFocus() {
@@ -70,14 +69,13 @@ function onInput(event) {
     var message = computeEdition(serverTextContent, newTextContent);
     message.type = "edit";
     // It is possible to have empty edit, do not send message in that case
-    if(message.insertion.length > 0 || message.deletion > 0)
-    {
+    if(message.insertion.length > 0 || message.deletion > 0) {
         socket.send(JSON.stringify(message));
 
+        // We let the cursor move as the user type
+        serverPosition = padTextArea.getSelection().end;
         // We put back the server text in the textarea, only the server can change the textarea
         padTextArea.val(serverTextContent);
-        // Bu we let the cursor move as the user type
-        serverPosition = padTextArea.getSelection().end;
     }
 }
 
@@ -85,18 +83,17 @@ function seek() {
     // Timeout because event is fired before new cursor position being effective
     setTimeout(function() {
         newPosition = padTextArea.getSelection().end;
-        // This checks avoid asking two times for the same cursor position
-        if(newPosition != requestedPosition)
-        {
-            requestedPosition = newPosition;
-            if(!serverFocusState || requestedPosition != serverPosition) {
+        // This check avoids asking two times for the same cursor position
+        if(newPosition != serverPosition) {
+            serverPosition = newPosition;
+            if(!serverFocusState) {
                 var contextWidth = 10;
-                var context = padTextArea.val().substring(requestedPosition - contextWidth, requestedPosition + contextWidth),
-                    context_position = Math.min(requestedPosition, contextWidth);
+                var context = padTextArea.val().substring(serverPosition - contextWidth, serverPosition + contextWidth),
+                    context_position = Math.min(serverPosition, contextWidth);
 
                 socket.send(JSON.stringify({
                     type: "seek",
-                    position: requestedPosition,
+                    position: serverPosition,
                     context: context,
                     context_position: context_position
                 }));
