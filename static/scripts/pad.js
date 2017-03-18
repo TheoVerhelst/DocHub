@@ -39,13 +39,22 @@ function makePreview(event) {
     $("#preview-text").html(markdown.Markdown.toHTML(markdown_text));
 }
 
+// Configuration variables
+var debugLog = true;
+var selectionTimeout = 50;
+
+// Global variables
 var socket = null;
 var padTextArea = $("#id_text");
-var debugLog = false;
-
 var serverTextContent = padTextArea.val();
 var serverPosition = 0;
 var serverFocusState = false;
+
+function log(arg1, arg2) {
+    if(debugLog) {
+        console.log(arg1, arg2);
+    }
+}
 
 function resetFocus() {
     // We have to unbind handlers, because handlers should be fired by user
@@ -66,20 +75,22 @@ function resetSelection() {
 }
 
 function onInput(event) {
-    var newTextContent = padTextArea.val()
-    var message = computeEdition(serverTextContent, newTextContent);
-    message.type = "edit";
-    // It is possible to have empty edit, do not send message in that case
-    if(message.insertion.length > 0 || message.deletion > 0) {
-        socket.send(JSON.stringify(message));
-        if(debugLog)
-            console.log("SEND", message);
+    // Timeout because event is fired before new cursor position being effective
+    setTimeout(function() {
+        var newTextContent = padTextArea.val()
+        var message = computeEdition(serverTextContent, newTextContent);
+        message.type = "edit";
+        // It is possible to have empty edit, do not send message in that case
+        if(message.insertion.length > 0 || message.deletion > 0) {
+            socket.send(JSON.stringify(message));
+            log("SEND", message);
 
-        // We let the cursor move as the user type
-        serverPosition = padTextArea.getSelection().end;
-        // We put back the server text in the textarea, only the server can change the textarea
-        padTextArea.val(serverTextContent);
-    }
+            // We let the cursor move as the user type
+            serverPosition = padTextArea.getSelection().end;
+            // We put back the server text in the textarea, only the server can change the textarea
+            padTextArea.val(serverTextContent);
+        }
+    }, selectionTimeout);
 }
 
 function seek() {
@@ -99,10 +110,9 @@ function seek() {
                 context_position: context_position
             }
             socket.send(JSON.stringify(message));
-            if(debugLog)
-                console.log("SEND", message);
+            log("SEND", message);
         }
-    }, 100);
+    }, selectionTimeout);
 }
 
 function focusOut(event) {
@@ -111,14 +121,12 @@ function focusOut(event) {
             type: "focus_out"
         }
         socket.send(JSON.stringify(message));
-        if(debugLog)
-            console.log("SEND", message);
+        log("SEND", message);
     }
     serverFocusState = false;
 }
 
 function arrowPressed(event) {
-    console.log("KEY DOWN");
     var moveKeys = [
       40,// down
       39,// right
@@ -135,7 +143,7 @@ function arrowPressed(event) {
 
 function receiveMessage(message) {
     var data = JSON.parse(message.data)
-    console.log("RECEIVE", data);
+    log("RECEIVE", data);
 
     switch(data["type"]) {
         case "sync":
