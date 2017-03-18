@@ -70,7 +70,9 @@ function resetFocus() {
 
 function resetSelection() {
     unbindEventHandlers();
-    padTextArea.setSelection(serverPosition, serverPosition);
+    setTimeout(function() {
+        padTextArea.setSelection(serverPosition, serverPosition);
+    }, selectionTimeout);
     bindEventHandlers();
 }
 
