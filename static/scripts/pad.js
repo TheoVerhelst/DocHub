@@ -41,6 +41,7 @@ function makePreview(event) {
 
 var socket = null;
 var padTextArea = $("#id_text");
+var debugLog = false;
 
 var serverTextContent = padTextArea.val();
 var serverPosition = 0;
@@ -71,6 +72,8 @@ function onInput(event) {
     // It is possible to have empty edit, do not send message in that case
     if(message.insertion.length > 0 || message.deletion > 0) {
         socket.send(JSON.stringify(message));
+        if(debugLog)
+            console.log("SEND", message);
 
         // We let the cursor move as the user type
         serverPosition = padTextArea.getSelection().end;
@@ -86,32 +89,36 @@ function seek() {
         // This check avoids asking two times for the same cursor position
         if(newPosition != serverPosition) {
             serverPosition = newPosition;
-            if(!serverFocusState) {
-                var contextWidth = 10;
-                var context = padTextArea.val().substring(serverPosition - contextWidth, serverPosition + contextWidth),
-                    context_position = Math.min(serverPosition, contextWidth);
-
-                socket.send(JSON.stringify({
-                    type: "seek",
-                    position: serverPosition,
-                    context: context,
-                    context_position: context_position
-                }));
+            var contextWidth = 10;
+            var context = padTextArea.val().substring(serverPosition - contextWidth, serverPosition + contextWidth),
+                context_position = Math.min(serverPosition, contextWidth);
+            var message = {
+                type: "seek",
+                position: serverPosition,
+                context: context,
+                context_position: context_position
             }
+            socket.send(JSON.stringify(message));
+            if(debugLog)
+                console.log("SEND", message);
         }
-    }, 50);
+    }, 100);
 }
 
 function focusOut(event) {
     if(serverFocusState) {
-        socket.send(JSON.stringify({
+        message = {
             type: "focus_out"
-        }));
+        }
+        socket.send(JSON.stringify(message));
+        if(debugLog)
+            console.log("SEND", message);
     }
     serverFocusState = false;
 }
 
 function arrowPressed(event) {
+    console.log("KEY DOWN");
     var moveKeys = [
       40,// down
       39,// right
@@ -128,6 +135,7 @@ function arrowPressed(event) {
 
 function receiveMessage(message) {
     var data = JSON.parse(message.data)
+    console.log("RECEIVE", data);
 
     switch(data["type"]) {
         case "sync":
