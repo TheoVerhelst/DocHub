@@ -32,17 +32,19 @@ def ws_pad_connect(message, document_pk):
     """
     message.channel_session['document'] = document_pk
 
-    if get_object_or_404(Document, pk=document_pk).group.slug in (group.slug for group in message.user.following_groups()):
-        # Reply with an ACK
-        message.reply_channel.send({'accept': True})
-        # Add the user to the pad
-        get_pad_group(document_pk).add(message.reply_channel)
-        get_user_group(message.user).add(message.reply_channel)
+    # FIXME This condition is wrong, only admins and the creator of the pad can edit it
+    #if get_object_or_404(Document, pk=document_pk).group.slug in (group.slug for group in message.user.following_groups()):
 
-        message.reply_channel.send({'text': json.dumps({
-            'type': 'sync',
-            'content': repr(get_pad(document_pk))
-        })})
+    # Reply with an ACK
+    message.reply_channel.send({'accept': True})
+    # Add the user to the pad
+    get_pad_group(document_pk).add(message.reply_channel)
+    get_user_group(message.user).add(message.reply_channel)
+
+    message.reply_channel.send({'text': json.dumps({
+        'type': 'sync',
+        'content': repr(get_pad(document_pk))
+    })})
 
 
 @channel_session_user
