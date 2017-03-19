@@ -46,8 +46,10 @@ var selectionTimeout = 50;
 var socket = null;
 var padTextArea = $("#id_text");
 var serverTextContent = padTextArea.val();
-var serverPosition = 0;
-var serverFocusState = false;
+var previousTextContent = serverTextContent;
+var lastPosition = 0;
+var lastFocusState = false;
+var lastEdit = {};
 
 function log(arg1, arg2) {
     if(debugLog) {
@@ -55,12 +57,18 @@ function log(arg1, arg2) {
     }
 }
 
+function editsAreEqual(lhs, rhs) {
+    return lhs["position"] === rhs["position"]
+        && lhs["deletion"] === rhs["deletion"]
+        && lhs["insertion"] === rhs["insertion"];
+}
+
 function resetFocus() {
     // We have to unbind handlers, because handlers should be fired by user
     // input only, not programmatically (and resetFocus are called
     // on server response, not on user input).
     unbindEventHandlers();
-    if(serverFocusState)
+    if(lastFocusState)
         padTextArea.focus();
     else
         padTextArea.blur();
@@ -70,7 +78,7 @@ function resetFocus() {
 function resetSelection() {
     unbindEventHandlers();
     setTimeout(function() {
-        padTextArea.setSelection(serverPosition, serverPosition);
+        padTextArea.setSelection(lastPosition, lastPosition);
     }, selectionTimeout);
     bindEventHandlers();
 }
@@ -78,19 +86,17 @@ function resetSelection() {
 function onInput(event) {
     // Timeout because event is fired before new cursor position being effective
     setTimeout(function() {
-        var newTextContent = padTextArea.val()
-        var message = computeEdition(serverTextContent, newTextContent);
-        message.type = "edit";
+        var newTextContent = padTextArea.val();
+        var message = computeEdition(previousTextContent, newTextContent);
+        message["type"] = "edit";
         // It is possible to have empty edit, do not send message in that case
         if(message.insertion.length > 0 || message.deletion > 0) {
             socket.send(JSON.stringify(message));
+            message["position"] = lastPosition;
             log("SEND", message);
-
-            // We let the cursor move as the user type
-            serverPosition = padTextArea.getSelection().end;
-            // We put back the server text in the textarea, only the server can change the textarea
-            padTextArea.val(serverTextContent);
-            resetSelection();
+            lastEdit = message;
+            lastPosition = padTextArea.getSelection().end;
+            previousTextContent = padTextArea.val();
         }
     }, selectionTimeout);
 }
@@ -100,14 +106,14 @@ function seek() {
     setTimeout(function() {
         newPosition = padTextArea.getSelection().end;
         // This check avoids asking two times for the same cursor position
-        if(newPosition != serverPosition) {
-            serverPosition = newPosition;
+        if(newPosition != lastPosition) {
+            lastPosition = newPosition;
             var contextWidth = 10;
-            var context = padTextArea.val().substring(serverPosition - contextWidth, serverPosition + contextWidth),
-                context_position = Math.min(serverPosition, contextWidth);
+            var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
+                context_position = Math.min(lastPosition, contextWidth);
             var message = {
                 type: "seek",
-                position: serverPosition,
+                position: lastPosition,
                 context: context,
                 context_position: context_position
             }
@@ -118,14 +124,14 @@ function seek() {
 }
 
 function focusOut(event) {
-    if(serverFocusState) {
+    if(lastFocusState) {
         message = {
             type: "focus_out"
         }
         socket.send(JSON.stringify(message));
         log("SEND", message);
+        lastFocusState = false;
     }
-    serverFocusState = false;
 }
 
 function arrowPressed(event) {
@@ -143,6 +149,13 @@ function arrowPressed(event) {
         seek();
 }
 
+function applyEdit(edit) {
+    if(edit["deletion"] > 0)
+        padTextArea.deleteText(edit["position"] - edit["deletion"], edit["position"]);
+    if(edit["insertion"].length > 0)
+        padTextArea.insertText(edit["insertion"], edit["position"]);
+}
+
 function receiveMessage(message) {
     var data = JSON.parse(message.data)
     log("RECEIVE", data);
@@ -151,33 +164,37 @@ function receiveMessage(message) {
         case "sync":
             padTextArea.val(data["content"]);
             serverTextContent = data["content"];
-            serverPosition = 0;
-            serverFocusState = false;
+            previousTextContent = serverTextContent;
+            lastPosition = 0;
+            lastFocusState = false;
             break;
 
         case "seek":
-            serverPosition = data["position"];
-            serverFocusState = true;
+            lastPosition = data["position"];
+            lastFocusState = true;
             break;
 
         case "edit":
-            if(data["deletion"] > 0)
-                padTextArea.deleteText(data["position"] - data["deletion"], data["position"]);
-            if(data["insertion"].length > 0)
-                padTextArea.insertText(data["insertion"], data["position"]);
-            // Fix the position if an edit occurs in a position before the cursor
-            // The + 1 avoid fixing position when the user receive its own input validated by the server
-            if(data["position"] + 1 < serverPosition)
-                serverPosition += (data["insertion"].length - data["deletion"])
+            // If the previous edit is different from the one we just received
+            if(!editsAreEqual(data, lastEdit)) {
+                // Revert the previous edit if it was not empty
+                if(Object.keys(lastEdit).length !== 0)
+                    // TODO in this case, we should handle the cursor in order to not focusing out
+                    padTextArea.val(serverTextContent);
+                // Apply the received edit
+                applyEdit(data);
+            }
+            lastEdit = {};
             serverTextContent = padTextArea.val();
+            previousTextContent = serverTextContent;
             break;
 
         case "error":
             // Selection refused by server
             if(data["cause"] == "seek") {
-                // Put back original selection
-                serverPosition = data["position"];
-                serverFocusState = true;
+                // Use the selection given by the server
+                lastPosition = data["position"];
+                lastFocusState = true;
             }
             break;
     }
