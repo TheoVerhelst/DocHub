@@ -3,8 +3,7 @@
 var dmp = new diff_match_patch();
 
 // Returns which insertion and deletion has been made between two strings
-function computeEdition(oldString, newString)
-{
+function computeEdition(oldString, newString) {
     // diff-match-patch configuration
     dmp.Diff_Timeout = 0.1; // Timeout for the diff computation
     dmp.Diff_EditCost = 10;
@@ -198,7 +197,6 @@ function unbindEventHandlers() {
 }
 
 function initPad() {
-
     // Socket connection
     socket = new WebSocket("ws://" + window.location.host + "/pad/" + $("#document-pk").val() + "/");
     socket.onmessage = receiveMessage;

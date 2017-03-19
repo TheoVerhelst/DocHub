@@ -34,6 +34,8 @@ class Pad:
         document = get_object_or_404(Document, pk=document_pk)
         data = document.original.read().decode("utf-8")
         self.lines = data.splitlines(keepends=True)
+        if len(self.lines) == 0:
+            self.lines = [""]
 
         self.cursors = {}
         self.new_cursor_id = -1
