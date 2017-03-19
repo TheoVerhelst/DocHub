@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             mWebView.setWebChromeClient(new DocHubWebChromeClient());
 
             // Enable Javascript
-            mWebView.loadUrl("https://dochub.be/");
+            mWebView.loadUrl("http://dochub.ddns.net");
         }
         else {
             // Restore page
