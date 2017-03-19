@@ -224,7 +224,7 @@ class Pad:
 
         #Row and column offsets after the deletion
         del_rows = current_row - del_start_row
-        del_cols = len(self.lines[del_start_row]) - current_col
+        del_cols = del_start_col - current_col
 
         for cur in self._get_all_cursors():
             if cur.row > current_row:
