@@ -165,6 +165,10 @@ function receiveMessage(message) {
                 padTextArea.deleteText(data["position"] - data["deletion"], data["position"]);
             if(data["insertion"].length > 0)
                 padTextArea.insertText(data["insertion"], data["position"]);
+            // Fix the position if an edit occurs in a position before the cursor
+            // The + 1 avoid fixing position when the user receive its own input validated by the server
+            if(data["position"] + 1 < serverPosition)
+                serverPosition += (data["insertion"].length - data["deletion"])
             serverTextContent = padTextArea.val();
             break;
 
