@@ -237,9 +237,6 @@ class Pad:
         last_line = self.lines[current_row]
         self.lines[del_start_row] = first_line[0:del_start_col] + last_line[current_col:]
 
-        for i in range(1, del_rows+1):
-            del self.lines[del_start_row + i]
-
         return backspace_count - backspace_remaining
 
     def __repr__(self):
