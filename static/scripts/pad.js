@@ -49,7 +49,11 @@ var serverTextContent = padTextArea.val();
 var previousTextContent = serverTextContent;
 var lastPosition = 0;
 var lastFocusState = false;
-var lastEdit = {};
+// This is a queue of edits requested to the server
+// We need a queue because we may send more than one edit before the server
+// respond, so we need to buffer them all and hope the responses will come in
+// the same order.
+var requestedEdits = [];
 
 function log(arg1, arg2) {
     if(debugLog) {
@@ -94,7 +98,7 @@ function onInput(event) {
             socket.send(JSON.stringify(message));
             message["position"] = lastPosition;
             log("SEND", message);
-            lastEdit = message;
+            requestedEdits.push(message);
             lastPosition = padTextArea.getSelection().end;
             previousTextContent = padTextArea.val();
         }
@@ -136,14 +140,8 @@ function focusOut(event) {
 
 function arrowPressed(event) {
     var moveKeys = [
-      40,// down
-      39,// right
-      38,// up
-      37,// left
-      36,// home
-      35,// end
-      34,// pageDown
-      33 // pageUp
+      40 /* down */, 39 /* right */, 38 /* up */,  37 /* left */,
+      36 /* home */, 35 /* end */, 34 /* pageDown */, 33 /* pageUp */
     ]
     if(moveKeys.indexOf(event.which) > -1)
         seek();
@@ -167,24 +165,32 @@ function receiveMessage(message) {
             previousTextContent = serverTextContent;
             lastPosition = 0;
             lastFocusState = false;
+            resetSelection();
+            resetFocus();
             break;
 
         case "seek":
             lastPosition = data["position"];
             lastFocusState = true;
+            resetSelection();
             break;
 
         case "edit":
-            // If the previous edit is different from the one we just received
-            if(!editsAreEqual(data, lastEdit)) {
-                // Revert the previous edit if it was not empty
-                if(Object.keys(lastEdit).length !== 0)
+            console.log("COMPARE ", data, JSON.stringify(requestedEdits))
+            var oldestEdit = requestedEdits.shift();
+            // If the oldest edit is different from the one we just received
+            if(!editsAreEqual(data, oldestEdit)) {
+                // Revert the oldest edit if it was not empty
+                if(Object.keys(oldestEdit).length !== 0) {
                     // TODO in this case, we should handle the cursor in order to not focusing out
                     padTextArea.val(serverTextContent);
-                // Apply the received edit
+                    resetSelection();
+                }
+                // Apply the received server edit
                 applyEdit(data);
+                // Clear all requested edits
+                requestedEdits = [];
             }
-            lastEdit = {};
             serverTextContent = padTextArea.val();
             previousTextContent = serverTextContent;
             break;
@@ -195,11 +201,11 @@ function receiveMessage(message) {
                 // Use the selection given by the server
                 lastPosition = data["position"];
                 lastFocusState = true;
+                resetSelection();
+                resetFocus();
             }
             break;
     }
-    resetSelection();
-    resetFocus();
 }
 
 function bindEventHandlers() {
