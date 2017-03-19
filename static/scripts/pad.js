@@ -62,9 +62,9 @@ function log(arg1, arg2) {
 }
 
 function editsAreEqual(lhs, rhs) {
-    return lhs["position"] === rhs["position"]
-        && lhs["deletion"] === rhs["deletion"]
-        && lhs["insertion"] === rhs["insertion"];
+    return lhs.position === rhs.position
+        && lhs.deletion === rhs.deletion
+        && lhs.insertion === rhs.insertion;
 }
 
 function resetFocus() {
@@ -92,11 +92,11 @@ function onInput(event) {
     setTimeout(function() {
         var newTextContent = padTextArea.val();
         var message = computeEdition(previousTextContent, newTextContent);
-        message["type"] = "edit";
+        message.type = "edit";
         // It is possible to have empty edit, do not send message in that case
         if(message.insertion.length > 0 || message.deletion > 0) {
             socket.send(JSON.stringify(message));
-            message["position"] = lastPosition;
+            message.position = lastPosition;
             log("SEND", message);
             requestedEdits.push(message);
             lastPosition = padTextArea.getSelection().end;
@@ -148,20 +148,20 @@ function arrowPressed(event) {
 }
 
 function applyEdit(edit) {
-    if(edit["deletion"] > 0)
-        padTextArea.deleteText(edit["position"] - edit["deletion"], edit["position"]);
-    if(edit["insertion"].length > 0)
-        padTextArea.insertText(edit["insertion"], edit["position"]);
+    if(edit.deletion > 0)
+        padTextArea.deleteText(edit.position - edit.deletion, edit.position);
+    if(edit.insertion.length > 0)
+        padTextArea.insertText(edit.insertion, edit.position);
 }
 
 function receiveMessage(message) {
     var data = JSON.parse(message.data)
     log("RECEIVE", data);
 
-    switch(data["type"]) {
+    switch(data.type) {
         case "sync":
-            padTextArea.val(data["content"]);
-            serverTextContent = data["content"];
+            padTextArea.val(data.content);
+            serverTextContent = data.content;
             previousTextContent = serverTextContent;
             lastPosition = 0;
             lastFocusState = false;
@@ -170,7 +170,7 @@ function receiveMessage(message) {
             break;
 
         case "seek":
-            lastPosition = data["position"];
+            lastPosition = data.position;
             lastFocusState = true;
             resetSelection();
             break;
@@ -197,9 +197,9 @@ function receiveMessage(message) {
 
         case "error":
             // Selection refused by server
-            if(data["cause"] == "seek") {
+            if(data.cause == "seek") {
                 // Use the selection given by the server
-                lastPosition = data["position"];
+                lastPosition = data.position;
                 lastFocusState = true;
                 resetSelection();
                 resetFocus();
