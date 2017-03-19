@@ -80,13 +80,9 @@ class Document(models.Model):
         return reverse('document_show', args=(self.id, ))
 
     def write_perm(self, user, moderated_groups):
-        if user.id == self.user_id:
-            return True
-
-        if self.group_id in moderated_groups:
-            return True
-
-        return False
+        return user.id == self.user_id \
+            or self.group_id in moderated_groups \
+            or (self.is_pad() and self.group in user.following_groups())
 
     def tag_from_name(self):
         name = self.name.lower().replace(u"é", "e").replace(u"è", "e").replace(u"ê", "e")

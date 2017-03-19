@@ -90,6 +90,7 @@ function onInput(event) {
             serverPosition = padTextArea.getSelection().end;
             // We put back the server text in the textarea, only the server can change the textarea
             padTextArea.val(serverTextContent);
+            resetSelection();
         }
     }, selectionTimeout);
 }
