@@ -39,7 +39,7 @@ function makePreview(event) {
 }
 
 // Configuration variables
-var debugLog = true;
+var debugLog = false;
 var selectionTimeout = 50;
 
 // Global variables
@@ -176,7 +176,6 @@ function receiveMessage(message) {
             break;
 
         case "edit":
-            console.log("COMPARE ", data, JSON.stringify(requestedEdits))
             var oldestEdit = requestedEdits.shift();
             // If the oldest edit is different from the one we just received
             if(!editsAreEqual(data, oldestEdit)) {
