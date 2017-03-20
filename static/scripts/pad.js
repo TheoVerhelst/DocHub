@@ -40,7 +40,6 @@ function makePreview(event) {
 
 // Configuration variables
 var debugLog = false;
-var selectionTimeout = 50;
 
 // Global variables
 var socket = null;
@@ -81,50 +80,43 @@ function resetFocus() {
 
 function resetSelection() {
     unbindEventHandlers();
-    setTimeout(function() {
-        padTextArea.setSelection(lastPosition, lastPosition);
-    }, selectionTimeout);
+    padTextArea.setSelection(lastPosition, lastPosition);
     bindEventHandlers();
 }
 
 function onInput(event) {
-    // Timeout because event is fired before new cursor position being effective
-    setTimeout(function() {
-        var newTextContent = padTextArea.val();
-        var message = computeEdition(previousTextContent, newTextContent);
-        message.type = "edit";
-        // It is possible to have empty edit, do not send message in that case
-        if(message.insertion.length > 0 || message.deletion > 0) {
-            socket.send(JSON.stringify(message));
-            message.position = lastPosition;
-            log("SEND", message);
-            requestedEdits.push(message);
-            lastPosition = padTextArea.getSelection().end;
-            previousTextContent = padTextArea.val();
-        }
-    }, selectionTimeout);
+    var newTextContent = padTextArea.val();
+    var message = computeEdition(previousTextContent, newTextContent);
+    message.type = "edit";
+    // It is possible to have empty edit, do not send message in that case
+    if(message.insertion.length > 0 || message.deletion > 0) {
+        socket.send(JSON.stringify(message));
+        message.position = lastPosition;
+        log("SEND", message);
+        requestedEdits.push(message);
+        lastPosition = padTextArea.getSelection().end;
+        previousTextContent = padTextArea.val();
+    }
 }
 
 function seek() {
-    // Timeout because event is fired before new cursor position being effective
-    setTimeout(function() {
-        newPosition = padTextArea.getSelection().end;
-        // This check avoids asking two times for the same cursor position
-        if(newPosition != lastPosition) {
-            lastPosition = newPosition;
-            var contextWidth = 10;
-            var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
-                context_position = Math.min(lastPosition, contextWidth);
-            var message = {
-                type: "seek",
-                position: lastPosition,
-                context: context,
-                context_position: context_position
-            }
-            socket.send(JSON.stringify(message));
-            log("SEND", message);
+    newPosition = padTextArea.getSelection().end;
+    // This check avoids asking two times for the same cursor position
+    if(!lastFocusState || newPosition != lastPosition) {
+        lastPosition = newPosition;
+        lastFocusState = true;
+        var contextWidth = 10;
+        var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
+            context_position = Math.min(lastPosition, contextWidth);
+        var message = {
+            type: "seek",
+            position: lastPosition,
+            context: context,
+            context_position: context_position
         }
-    }, selectionTimeout);
+        socket.send(JSON.stringify(message));
+        log("SEND", message);
+    }
 }
 
 function focusOut(event) {
@@ -211,7 +203,7 @@ function receiveMessage(message) {
 }
 
 function bindEventHandlers() {
-    padTextArea.on("input", onInput);
+    padTextArea.on("textentered", onInput);
     padTextArea.on("focus", seek);
     padTextArea.on("click", seek);
     padTextArea.on("blur", focusOut);
@@ -219,7 +211,7 @@ function bindEventHandlers() {
 }
 
 function unbindEventHandlers() {
-    padTextArea.off("input", onInput);
+    padTextArea.off("textentered", onInput);
     padTextArea.off("focus", seek);
     padTextArea.off("click", seek);
     padTextArea.off("blur", focusOut);
