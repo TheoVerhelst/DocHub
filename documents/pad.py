@@ -168,7 +168,8 @@ class Pad:
 
         #Compute offset due to insertion (for futher cursors)
         furtherCursorRowOffset = len(splitted_lines) - 1
-        furtherCursorColOffset = (len(content) - content.rindex('\n') - 1) - current_col
+        furtherCursorColOffset = len(splitted_lines[-1]) - current_col
+        #furtherCursorColOffset = (len(content) - content.rindex('\n') - 1) - current_col
 
         #Advance cursors
         for other_cursor in self._get_all_cursors():
