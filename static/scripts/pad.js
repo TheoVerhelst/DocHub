@@ -177,6 +177,9 @@ function receiveMessage(message) {
 
         case "edit":
             var oldestEdit = requestedEdits.shift();
+            if(oldestEdit === undefined)
+                oldestEdit = {};
+
             // If the oldest edit is different from the one we just received
             if(!editsAreEqual(data, oldestEdit)) {
                 // Revert the oldest edit if it was not empty
