@@ -21,7 +21,9 @@ def get_pad(document_pk):
     if not hasattr(group.channel_layer, "pads"):
         group.channel_layer.pads = {}
     pads = group.channel_layer.pads
-    return pads.setdefault(document_pk, pad_ns.Pad(document_pk))
+	document = get_object_or_404(Document, pk=document_pk)
+    data = document.original.read().decode("utf-8")
+    return pads.setdefault(document_pk, pad_ns.Pad(data))
 
 # Websockets
 
