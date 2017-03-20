@@ -44,8 +44,7 @@ var debugLog = false;
 // Global variables
 var socket = null;
 var padTextArea = $("#id_text");
-var serverTextContent = padTextArea.val();
-var previousTextContent = serverTextContent;
+var previousTextContent = padTextArea.val();
 var lastPosition = 0;
 var lastFocusState = false;
 // This is a queue of edits requested to the server
@@ -153,8 +152,7 @@ function receiveMessage(message) {
     switch(data.type) {
         case "sync":
             padTextArea.val(data.content);
-            serverTextContent = data.content;
-            previousTextContent = serverTextContent;
+            previousTextContent = data.content;
             lastPosition = 0;
             lastFocusState = false;
             resetSelection();
@@ -168,25 +166,25 @@ function receiveMessage(message) {
             break;
 
         case "edit":
-            var oldestEdit = requestedEdits.shift();
-            if(oldestEdit === undefined)
-                oldestEdit = {};
-
-            // If the oldest edit is different from the one we just received
-            if(!editsAreEqual(data, oldestEdit)) {
-                // Revert the oldest edit if it was not empty
-                if(Object.keys(oldestEdit).length !== 0) {
-                    // TODO in this case, we should handle the cursor in order to not focusing out
-                    padTextArea.val(serverTextContent);
-                    resetSelection();
-                }
-                // Apply the received server edit
+            if(requestedEdits.length === 0)
                 applyEdit(data);
-                // Clear all requested edits
-                requestedEdits = [];
+            else {
+                var oldestEdit = requestedEdits.shift();
+                // If the oldest edit is different from the one we just received
+                if(!editsAreEqual(data, oldestEdit)) {
+                    // Revert the oldest edit if it was not empty
+                    if(Object.keys(oldestEdit).length !== 0) {
+                        // TODO in this case, we should handle the cursor in order to not focusing out
+                        padTextArea.val(previousTextContent);
+                        resetSelection();
+                    }
+                    // Apply the received server edit
+                    applyEdit(data);
+                    // Clear all requested edits
+                    requestedEdits = [];
+                }
             }
-            serverTextContent = padTextArea.val();
-            previousTextContent = serverTextContent;
+            previousTextContent = padTextArea.val();
             break;
 
         case "error":
@@ -203,7 +201,7 @@ function receiveMessage(message) {
 }
 
 function bindEventHandlers() {
-    padTextArea.on("textentered", onInput);
+    padTextArea.textentered({trimValue:false}).on("textentered", onInput);
     padTextArea.on("focus", seek);
     padTextArea.on("click", seek);
     padTextArea.on("blur", focusOut);
