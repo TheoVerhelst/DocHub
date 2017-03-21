@@ -147,6 +147,7 @@ function applyEdit(edit) {
         padTextArea.deleteText(edit.position - edit.deletion, edit.position);
     if(edit.insertion.length > 0)
         padTextArea.insertText(edit.insertion, edit.position);
+    lastPosition += edit.insertion.length - edit.deletion;
     bindEventHandlers();
 }
 
