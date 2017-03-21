@@ -5,7 +5,7 @@ import json
 import channels
 from .models import Document
 from django.shortcuts import get_object_or_404
-from channels.auth import channel_session_user_from_http, channel_session_user
+from channels.auth import channel_session_user_from_http, channel_session_user, enforce_ordering
 from . import pad as pad_ns
 
 def get_pad_group(document):
@@ -27,6 +27,7 @@ def get_pad(document_pk):
 
 # Websockets
 
+@enforce_ordering
 @channel_session_user_from_http
 def ws_pad_connect(message, document_pk):
     """
@@ -48,7 +49,7 @@ def ws_pad_connect(message, document_pk):
         'content': repr(get_pad(document_pk))
     })})
 
-
+@enforce_ordering
 @channel_session_user
 def ws_pad_receive(message):
     """Handles a websocket message by putting it on the message channel.
@@ -67,7 +68,7 @@ def ws_pad_receive(message):
     # Send the message to the right channel
     channels.Channel("pad.receive").send(message_data)
 
-
+@enforce_ordering
 @channel_session_user
 def ws_pad_disconnect(message):
     """Disconnects a user form a pad.
