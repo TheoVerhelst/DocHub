@@ -174,13 +174,8 @@ function receiveMessage(message) {
                 var oldestEdit = requestedEdits.shift();
                 // If the oldest edit is different from the one we just received
                 if(!editsAreEqual(data, oldestEdit)) {
-                    // Revert the oldest edit if it was not empty
-                    if(Object.keys(oldestEdit).length !== 0) {
-                        // TODO in this case, we should handle the cursor in order to not focusing out
-                        padTextArea.val(previousTextContent);
-                        resetSelection();
-                        focusOut();
-                    }
+                    // Revert the oldest edit
+                    padTextArea.val(previousTextContent);
                     // Apply the received server edit
                     applyEdit(data);
                     // Clear all requested edits
@@ -188,6 +183,7 @@ function receiveMessage(message) {
                 }
             }
             previousTextContent = padTextArea.val();
+            resetSelection();
             break;
 
         case "error":
