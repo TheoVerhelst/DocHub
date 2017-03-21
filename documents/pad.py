@@ -140,7 +140,7 @@ class Pad:
     def cursor_exists(self, cursor_id):
            return self._get_cursor_from_id(cursor_id).is_valid()
 
-    def cursor_create(self):
+    def cursor_create(self, cursor_id=None):
         """
         Creates a new cursor and returns its id, which is the same as cursor_id if provided.
         Note: if provided cursor_id is not unique, raises KeyError
