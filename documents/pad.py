@@ -102,12 +102,8 @@ class Pad:
         if not self._row_col_are_valid(row, col):
             raise PadOutOfSync("Row, Col (%s, %s) are not valid"%(row, col))
 
-        char = 0
-        row_count = 0
-        while row_count < row:
-            char += len(self.lines[row_count])
-            row_count += 1
-
+        # Sum of lengths of the row'th first lines
+        char = sum(len(line) for line in self.lines[:row])
         return char + col
 
     def _get_cursor_from_id(self, cursor_id):
