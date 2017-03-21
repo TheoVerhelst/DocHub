@@ -50,7 +50,7 @@ class Pad:
         #Read initial content from file to a line list
         self.lines = text.splitlines(keepends=True)
         self._check_last_line()
-        
+
         self.content_as_string = text #Whole content concatenated into one string
         self.content_was_modified = True #Was the content modified since the last concat ?
 
@@ -224,7 +224,7 @@ class Pad:
         """
         cursor = self._get_cursor_from_id(cursor_id) #Check if cursor exists first
         cursor.reset()
-        
+
     def _check_last_line(self):
         """
         Makes sure that there is at least one line and that the last line does not end in a line feed.
@@ -232,11 +232,11 @@ class Pad:
         #If there are no more lines, add one new line
         if len(self.lines) == 0:
             self.lines.append("\n")
-        
+
         #If the first line is empty (and therefore it is the only line)
         elif len(self.lines[0]) == 0:
             self.lines[0] = "\n"
-        
+
         #If the last lines ends in a line feed, add an empty line
         if len(self.lines[-1]) > 0 and self.lines[-1][-1] == "\n":
             self.lines.append("")
