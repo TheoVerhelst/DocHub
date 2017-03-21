@@ -14,7 +14,7 @@ from www.config.default import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["dochub.ddns.be", "127.0.0.1"]
+ALLOWED_HOSTS = ["dochub.ddns.net", "127.0.0.1"]
 
 INSTALLED_APPS += (
     'django_extensions',
