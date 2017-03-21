@@ -16,7 +16,7 @@ class Cursor:
         self.row = -1
         self.col = -1
 
-    def isSynced(self):
+    def is_valid(self):
         """
         Returns True if the cursor is located in the pad, False otherwise
         """
@@ -127,7 +127,7 @@ class Pad:
         return True
 
     def cursor_exists(self, cursor_id):
-        return self._get_cursor_from_id(cursor_id).isSynced()
+        return self._get_cursor_from_id(cursor_id).is_valid()
 
     def get_cursor_position(self, cursor_id):
         cursor = self._get_cursor_from_id(cursor_id)
@@ -230,7 +230,7 @@ class Pad:
         """
         #Check if cursor exists and is in valid position
         cursor = self._get_cursor_from_id(cursor_id)
-        if not cursor.isSynced():
+        if not cursor.is_valid():
             raise PadModificationDenied("Cursor selection is not in sync.")
 
         pad_line = self.lines[cursor.row]
