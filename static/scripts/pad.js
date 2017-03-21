@@ -46,7 +46,16 @@ var contextWidth = 10;
 // Global variables
 var socket = null;
 var padTextArea = $("#id_text");
-var previousTextContent = padTextArea.val();
+// This variable holds the content of the textarea, and is updated when an
+// input event is fired or when the content is synced with the server.
+// It is used to compute the text difference before and after the event, in
+// order to send this edit to the server.
+var previousContent = padTextArea.val();
+// This variable holds the same text as the server pad, and is only updated when
+// we receive a sync or edit message from the server.
+// It is used to back up the textarea to the server state when an unexpected
+// message occurs (such as our edit with a modified position).
+var serverContent = null;
 var lastPosition = null;
 var lastFocusState = false;
 // This is a queue of edits requested to the server
@@ -86,7 +95,7 @@ function resetSelection() {
 
 function onInput(event) {
     var newTextContent = padTextArea.val();
-    var message = computeEdition(previousTextContent, newTextContent);
+    var message = computeEdition(previousContent, newTextContent);
     message.type = "edit";
     // It is possible to have empty edit, do not send message in that case
     if(message.insertion.length > 0 || message.deletion > 0) {
@@ -95,7 +104,7 @@ function onInput(event) {
         log("SEND", message);
         requestedEdits.push(message);
         lastPosition = padTextArea.getSelection().end;
-        previousTextContent = padTextArea.val();
+        previousContent = newTextContent;
     }
 }
 
@@ -141,15 +150,35 @@ function onArrowPressed(event) {
         seek();
 }
 
-function applyEdit(edit) {
-    unbindEventHandlers();
-    if(edit.deletion > 0)
-        padTextArea.deleteText(edit.position - edit.deletion, edit.position);
+function applyEditToServerContent(edit) {
+    var position = edit.position;
+    if(edit.deletion > 0) {
+        serverContent = serverContent.slice(0, position - edit.deletion) + serverContent.slice(position);
+        // The position has moved, since we deleted some characters
+        position -= edit.deletion;
+    }
     if(edit.insertion.length > 0)
-        padTextArea.insertText(edit.insertion, edit.position);
-    if(lastPosition > edit.position)
+}
+
+function applyEditToTextArea(edit) {
+    unbindEventHandlers();
+    var position = edit.position;
+    if(edit.deletion > 0) {
+        padTextArea.deleteText(position - edit.deletion, position);
+        // The position has moved, since we deleted some characters
+        position -= edit.deletion;
+    }
+    if(edit.insertion.length > 0)
+        padTextArea.insertText(edit.insertion, position);
+    if(lastPosition > position)
         lastPosition += edit.insertion.length - edit.deletion;
     bindEventHandlers();
+}
+
+function syncContent() {
+    previousContent = serverContent;
+    padTextArea.val(serverContent);
+    focusOut(); // TODO this could be avoided
 }
 
 function receiveMessage(message) {
@@ -158,9 +187,8 @@ function receiveMessage(message) {
 
     switch(data.type) {
         case "sync":
-            padTextArea.val(data.content);
-            previousTextContent = data.content;
-            focusOut();
+            serverContent = data.content;
+            syncContent();
             break;
 
         case "seek":
@@ -170,21 +198,21 @@ function receiveMessage(message) {
             break;
 
         case "edit":
-            if(requestedEdits.length === 0)
-                applyEdit(data);
+            if(requestedEdits.length === 0) {
+                applyEditToServerContent(data);
+                applyEditToTextArea(data);
+            }
             else {
                 var oldestEdit = requestedEdits.shift();
                 // If the oldest edit is different from the one we just received
                 if(!editsAreEqual(data, oldestEdit)) {
-                    // Revert the oldest edit
-                    padTextArea.val(previousTextContent);
-                    // Apply the received server edit
-                    applyEdit(data);
-                    // Clear all requested edits
+                    syncContent();
+                    applyEditToTextArea(data);
                     requestedEdits = [];
                 }
+                applyEditToServerContent(data);
             }
-            previousTextContent = padTextArea.val();
+            previousContent = padTextArea.val();
             resetSelection();
             break;
 
@@ -222,7 +250,6 @@ function initPad() {
 
     //Event bindings
     bindEventHandlers();
-
     $("#preview-tab-link").click(makePreview);
     makePreview({});
 }
