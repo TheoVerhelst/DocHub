@@ -110,6 +110,13 @@ def pad_receive(message):
             })})
 
     elif message.content['type'] == "edit":
+        # If the user has not a valid cursor, send a seek error
+        if not pad.cursor_exists(cursor_id):
+            get_user_group(message['user']).send({'text': json.dumps({
+                'type' : "error",
+                'cause' : "seek"
+            })})
+
         # We need the old cursor position, in order to send correct patch to
         # the connected users
         old_position = pad.get_cursor_position(cursor_id)
@@ -130,4 +137,5 @@ def pad_receive(message):
         })})
 
     elif message.content['type'] == "focus_out":
-        pad.cursor_delete(cursor_id)
+        if pad.cursor_exists(cursor_id):
+            pad.cursor_delete(cursor_id)

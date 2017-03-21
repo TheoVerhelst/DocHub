@@ -126,6 +126,9 @@ class Pad:
                 return False
         return True
 
+    def cursor_exists(self, cursor_id):
+        return self._get_cursor_from_id(cursor_id).isSynced()
+
     def get_cursor_position(self, cursor_id):
         cursor = self._get_cursor_from_id(cursor_id)
         return self._row_col_to_char(cursor.row, cursor.col)
