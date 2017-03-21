@@ -5,7 +5,8 @@ import json
 import channels
 from .models import Document
 from django.shortcuts import get_object_or_404
-from channels.auth import channel_session_user_from_http, channel_session_user, enforce_ordering
+from channels.auth import channel_session_user_from_http, channel_session_user
+from channels.sessions import enforce_ordering
 from . import pad as pad_ns
 
 def get_pad_group(document):
