@@ -39,13 +39,15 @@ function makePreview(event) {
 }
 
 // Configuration variables
-var debugLog = false;
+var debugLog = true;
+var timeout = 50;
+var contextWidth = 10;
 
 // Global variables
 var socket = null;
 var padTextArea = $("#id_text");
 var previousTextContent = padTextArea.val();
-var lastPosition = 0;
+var lastPosition = null;
 var lastFocusState = false;
 // This is a queue of edits requested to the server
 // We need a queue because we may send more than one edit before the server
@@ -65,15 +67,14 @@ function editsAreEqual(lhs, rhs) {
         && lhs.insertion === rhs.insertion;
 }
 
-function resetFocus() {
+function focusOut() {
     // We have to unbind handlers, because handlers should be fired by user
-    // input only, not programmatically (and resetFocus are called
+    // input only, not programmatically (and focusOut are called
     // on server response, not on user input).
     unbindEventHandlers();
-    if(lastFocusState)
-        padTextArea.focus();
-    else
-        padTextArea.blur();
+    lastPosition = null;
+    lastFocusState = false;
+    padTextArea.blur();
     bindEventHandlers();
 }
 
@@ -99,26 +100,27 @@ function onInput(event) {
 }
 
 function seek() {
-    newPosition = padTextArea.getSelection().end;
-    // This check avoids asking two times for the same cursor position
-    if(!lastFocusState || newPosition != lastPosition) {
-        lastPosition = newPosition;
-        lastFocusState = true;
-        var contextWidth = 10;
-        var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
-            context_position = Math.min(lastPosition, contextWidth);
-        var message = {
-            type: "seek",
-            position: lastPosition,
-            context: context,
-            context_position: context_position
+    setTimeout(function() {
+        var newPosition = padTextArea.getSelection().end;
+        // This check avoids asking two times for the same cursor position
+        if(!lastFocusState || newPosition != lastPosition) {
+            lastPosition = newPosition;
+            lastFocusState = true;
+            var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
+                context_position = Math.min(lastPosition, contextWidth);
+            var message = {
+                type: "seek",
+                position: lastPosition,
+                context: context,
+                context_position: context_position
+            }
+            socket.send(JSON.stringify(message));
+            log("SEND", message);
         }
-        socket.send(JSON.stringify(message));
-        log("SEND", message);
-    }
+    }, timeout);
 }
 
-function focusOut(event) {
+function onFocusOut(event) {
     if(lastFocusState) {
         message = {
             type: "focus_out"
@@ -126,10 +128,11 @@ function focusOut(event) {
         socket.send(JSON.stringify(message));
         log("SEND", message);
         lastFocusState = false;
+        lastPosition = null;
     }
 }
 
-function arrowPressed(event) {
+function onArrowPressed(event) {
     var moveKeys = [
       40 /* down */, 39 /* right */, 38 /* up */,  37 /* left */,
       36 /* home */, 35 /* end */, 34 /* pageDown */, 33 /* pageUp */
@@ -153,10 +156,7 @@ function receiveMessage(message) {
         case "sync":
             padTextArea.val(data.content);
             previousTextContent = data.content;
-            lastPosition = 0;
-            lastFocusState = false;
-            resetSelection();
-            resetFocus();
+            focusOut();
             break;
 
         case "seek":
@@ -189,13 +189,8 @@ function receiveMessage(message) {
 
         case "error":
             // Selection refused by server
-            if(data.cause == "seek") {
-                // Use the selection given by the server
-                lastPosition = data.position;
-                lastFocusState = true;
-                resetSelection();
-                resetFocus();
-            }
+            if(data.cause == "seek")
+                focusOut();
             break;
     }
 }
@@ -204,16 +199,16 @@ function bindEventHandlers() {
     padTextArea.textentered({trimValue:false}).on("textentered", onInput);
     padTextArea.on("focus", seek);
     padTextArea.on("click", seek);
-    padTextArea.on("blur", focusOut);
-    padTextArea.on("keydown", arrowPressed);
+    padTextArea.on("blur", onFocusOut);
+    padTextArea.on("keydown", onArrowPressed);
 }
 
 function unbindEventHandlers() {
     padTextArea.off("textentered", onInput);
     padTextArea.off("focus", seek);
     padTextArea.off("click", seek);
-    padTextArea.off("blur", focusOut);
-    padTextArea.off("keydown", arrowPressed);
+    padTextArea.off("blur", onFocusOut);
+    padTextArea.off("keydown", onArrowPressed);
 }
 
 function initPad() {
