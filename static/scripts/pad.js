@@ -158,6 +158,7 @@ function applyEditToServerContent(edit) {
         position -= edit.deletion;
     }
     if(edit.insertion.length > 0)
+        serverContent = serverContent.slice(0, position) + edit.insertion + serverContent.slice(position);
 }
 
 function applyEditToTextArea(edit) {
