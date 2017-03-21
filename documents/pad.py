@@ -52,16 +52,23 @@ class Pad:
 		
 		#Read initial content from file to a line list
 		self.lines = text.splitlines(keepends=True)
+		if self.lines[-1][-1] == "\n":
+			self.lines.append("")
 		
 		#Cursor dict and value used for default cursor ids
 		self.cursors = {}
-		self.new_cursor_id = -1
+		self.new_cursor_id = 0
 		
 	def _row_col_are_valid(self, row, col):
 		"""
 		Returns True if (row, col) is a valid position, False otherwise.
 		"""
-		return 0 <= row and row < len(self.lines) and 0 <= col and col < len(self.lines[row])
+		#If row is the last row (which does not end in line feed)
+		if row == len(self.lines) - 1:
+			return 0 <= col and col <= len(self.lines[row])
+		#All other lines end in line feed, and cursor can not be placed after line feed
+		else:
+			return 0 <= row and row < len(self.lines) and 0 <= col and col < len(self.lines[row])
 		
 	def _char_to_row_col(self, char_count):
 		"""
@@ -94,7 +101,7 @@ class Pad:
 		Translates a (row, col) position into a char offset from file beginning.
 		"""
 		if not self._row_col_are_valid(row, col):
-			raise ValueError #(row, col) is not a valid position
+			raise PadOutOfSync("Row, Col (%s, %s) are not valid"%(row, col))
 			
 		char = 0
 		
@@ -168,8 +175,8 @@ class Pad:
 			raise PadOutOfSync("Seek context could not be found in text.")
 		
 		#Choose best position
-		distance_to_next = (next_closest_position + context_left_span) - seek_position
-		distance_to_prev = seek_position - (prev_closest_position + context_left_span)
+		distance_to_next = abs((next_closest_position + context_offset) - seek_position)
+		distance_to_prev = abs((prev_closest_position + context_offset) - seek_position)
 		
 		true_position = 0
 		if prev_closest_position == -1 or distance_to_next < distance_to_prev:
