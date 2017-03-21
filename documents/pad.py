@@ -237,7 +237,7 @@ class Pad:
         """
         #Check if cursor exists and is in valid position
         cursor = self._get_cursor_from_id(cursor_id)
-        if not cursor.isSynced():
+        if not cursor.is_valid():
             raise PadModificationDenied("Cursor selection is not in sync.")
 
         pad_line = self.lines[cursor.row]
