@@ -47,14 +47,12 @@ class Pad:
     Modifications of the text may be submitted along with a cursor identification as long as the cursor selection/position has been accepted.
     """
     def __init__(self, text):
-        assert(text != "") #Text cannot be empty
-        self.content_as_string = text #Whole content concatenated into one string
-        self.content_was_modified = False #Was the content modified since the last concat ?
-
         #Read initial content from file to a line list
         self.lines = text.splitlines(keepends=True)
-        if self.lines[-1][-1] == "\n":
-            self.lines.append("")
+        self._check_last_line()
+        
+        self.content_as_string = text #Whole content concatenated into one string
+        self.content_was_modified = True #Was the content modified since the last concat ?
 
         #Cursor dict and value used for default cursor ids
         self.cursors = {}
@@ -105,7 +103,6 @@ class Pad:
             raise PadOutOfSync("Row, Col (%s, %s) are not valid"%(row, col))
 
         char = 0
-
         while row > 0:
             char += len(self.lines[row])
             row -= 1
@@ -214,7 +211,6 @@ class Pad:
         else:
             raise PadSelectionDenied
 
-
     def cursor_delete(self, cursor_id):
         """
         Removes the cursor identified by cursor_id from the Pad.
@@ -228,6 +224,22 @@ class Pad:
         """
         cursor = self._get_cursor_from_id(cursor_id) #Check if cursor exists first
         cursor.reset()
+        
+    def _check_last_line(self):
+        """
+        Makes sure that there is at least one line and that the last line does not end in a line feed.
+        """
+        #If there are no more lines, add one new line
+        if len(self.lines) == 0:
+            self.lines.append("\n")
+        
+        #If the first line is empty (and therefore it is the only line)
+        elif len(self.lines[0]) == 0:
+            self.lines[0] = "\n"
+        
+        #If the last lines ends in a line feed, add an empty line
+        if len(self.lines[-1]) > 0 and self.lines[-1][-1] == "\n":
+            self.lines.append("")
 
     def insert(self, cursor_id, content):
         """
@@ -274,6 +286,8 @@ class Pad:
             elif other_cursor.row == current_row and other_cursor.col >= current_col:
                 other_cursor.row += furtherCursorRowOffset
                 other_cursor.col += furtherCursorColOffset
+
+        self._check_last_line()
 
 
     def remove(self, cursor_id, backspace_count):
@@ -333,6 +347,9 @@ class Pad:
 
         for i in range(1, rows_offset+1):
             del self.lines[del_start_row + 1]
+
+        self._check_last_line()
+        return backspace_count - backspace_remaining
 
     def printCursorPositions(self):
         for id, cur in self.cursors.items():
