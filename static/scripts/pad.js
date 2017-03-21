@@ -142,10 +142,12 @@ function onArrowPressed(event) {
 }
 
 function applyEdit(edit) {
+    unbindEventHandlers();
     if(edit.deletion > 0)
         padTextArea.deleteText(edit.position - edit.deletion, edit.position);
     if(edit.insertion.length > 0)
         padTextArea.insertText(edit.insertion, edit.position);
+    bindEventHandlers();
 }
 
 function receiveMessage(message) {
@@ -177,6 +179,7 @@ function receiveMessage(message) {
                         // TODO in this case, we should handle the cursor in order to not focusing out
                         padTextArea.val(previousTextContent);
                         resetSelection();
+                        focusOut();
                     }
                     // Apply the received server edit
                     applyEdit(data);
