@@ -103,9 +103,10 @@ class Pad:
             raise PadOutOfSync("Row, Col (%s, %s) are not valid"%(row, col))
 
         char = 0
-        while row > 0:
-            char += len(self.lines[row])
-            row -= 1
+        row_count = 0
+        while row_count < row:
+            char += len(self.lines[row_count])
+            row_count += 1
 
         return char + col
 
