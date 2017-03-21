@@ -40,6 +40,7 @@ function makePreview(event) {
 
 // Configuration variables
 var debugLog = false;
+var timeout = 50;
 
 // Global variables
 var socket = null;
@@ -99,23 +100,25 @@ function onInput(event) {
 }
 
 function seek() {
-    newPosition = padTextArea.getSelection().end;
-    // This check avoids asking two times for the same cursor position
-    if(!lastFocusState || newPosition != lastPosition) {
-        lastPosition = newPosition;
-        lastFocusState = true;
-        var contextWidth = 10;
-        var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
-            context_position = Math.min(lastPosition, contextWidth);
-        var message = {
-            type: "seek",
-            position: lastPosition,
-            context: context,
-            context_position: context_position
+    setTimeout(function() {
+        var newPosition = padTextArea.getSelection().end;
+        // This check avoids asking two times for the same cursor position
+        if(!lastFocusState || newPosition != lastPosition) {
+            lastPosition = newPosition;
+            lastFocusState = true;
+            var contextWidth = 10;
+            var context = padTextArea.val().substring(lastPosition - contextWidth, lastPosition + contextWidth),
+                context_position = Math.min(lastPosition, contextWidth);
+            var message = {
+                type: "seek",
+                position: lastPosition,
+                context: context,
+                context_position: context_position
+            }
+            socket.send(JSON.stringify(message));
+            log("SEND", message);
         }
-        socket.send(JSON.stringify(message));
-        log("SEND", message);
-    }
+    }, timeout);
 }
 
 function focusOut(event) {
