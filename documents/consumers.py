@@ -110,31 +110,31 @@ def pad_receive(message):
             })})
 
     elif message.content['type'] == "edit":
+        try:
+            # We need the old cursor position, in order to send correct patch to
+            # the connected users
+            old_position = pad.get_cursor_position(cursor_id)
+            # Send the message to the group (i.e. all users connected to the pad)
+            deletion_count = message.content['deletion']
+            if deletion_count > 0:
+                deletion_count = pad.remove(cursor_id, deletion_count)
+
+            inserted_string = message.content['insertion']
+            if len(inserted_string) > 0:
+                pad.insert(cursor_id, inserted_string)
+
+            get_pad_group(message['document']).send({'text': json.dumps({
+                'type' : "edit",
+                'position' : old_position,
+                'deletion' : deletion_count,
+                'insertion' : inserted_string
+            })})
         # If the user has not a valid cursor, send a seek error
-        if not pad.cursor_exists(cursor_id):
+        except pad_ns.PadOutOfSync:
             get_user_group(message['user']).send({'text': json.dumps({
                 'type' : "error",
                 'cause' : "seek"
             })})
-
-        # We need the old cursor position, in order to send correct patch to
-        # the connected users
-        old_position = pad.get_cursor_position(cursor_id)
-        # Send the message to the group (i.e. all users connected to the pad)
-        deletion_count = message.content['deletion']
-        if deletion_count > 0:
-            deletion_count = pad.remove(cursor_id, deletion_count)
-
-        inserted_string = message.content['insertion']
-        if len(inserted_string) > 0:
-            pad.insert(cursor_id, inserted_string)
-
-        get_pad_group(message['document']).send({'text': json.dumps({
-            'type' : "edit",
-            'position' : old_position,
-            'deletion' : deletion_count,
-            'insertion' : inserted_string
-        })})
 
     elif message.content['type'] == "focus_out":
         if pad.cursor_exists(cursor_id):
