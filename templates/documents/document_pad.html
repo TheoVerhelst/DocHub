@@ -22,7 +22,7 @@
     </ul>
     <div class="tabs-content">
       <div class="content active row" id="edit-tab">
-        <div class="medium-8 small-12 columns">
+        <div class="small-12 columns">
           <form action="" method="post" enctype="multipart/form-data" class="dropzone">
               {% csrf_token %}
               {{ form.non_field_errors }}
@@ -40,17 +40,6 @@
               <input type="hidden" id="document-pk" value="{{ document.pk }}" />
               <p class="text-right"><input type="submit" class="button success radius" value="Envoyer" /></p>
           </form>
-        </div>
-        <div class="medium-4 small-12 columns">
-          <div class="alert-box info radius row">
-            <div class="small-3 columns">
-              <i class="fi-info round-icon big"></i>
-            </div>
-            <div class="small-9 columns">
-              <p>L'édition collaborative en temps réel d'un document est la méthode de choix pour travailler en groupe sur la rédaction d'un document.</p>
-              <p>Pour un bon fonctionnement, veillez à avoir une bonne connexion à internet et à travailler sur des lignes séparées les unes des autres.</p>
-            </div>
-          </div>
         </div>
       </div>
 
