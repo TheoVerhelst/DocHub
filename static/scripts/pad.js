@@ -193,9 +193,8 @@ function receiveMessage(message) {
             break;
 
         case "seek":
-            lastPosition = data.position;
-            lastFocusState = true;
-            resetSelection();
+            // Do nothing, we may use data.position later, but for now we keep
+            // out position.
             break;
 
         case "edit":
